@@ -35,35 +35,35 @@
 
 :root {
   --radius: 0.5rem;
-  /* Dark cinematic palette */
-  --background: oklch(0.16 0.02 260);
-  --foreground: oklch(0.97 0.01 90);
-  --card: oklch(0.21 0.025 260);
-  --card-foreground: oklch(0.97 0.01 90);
-  --popover: oklch(0.21 0.025 260);
-  --popover-foreground: oklch(0.97 0.01 90);
-  --primary: oklch(0.82 0.14 80);            /* warm gold */
-  --primary-foreground: oklch(0.16 0.02 260);
-  --secondary: oklch(0.27 0.03 260);
-  --secondary-foreground: oklch(0.97 0.01 90);
-  --muted: oklch(0.24 0.02 260);
-  --muted-foreground: oklch(0.7 0.02 260);
-  --accent: oklch(0.32 0.04 260);
-  --accent-foreground: oklch(0.97 0.01 90);
+  /* Rumble-inspired palette: deep green-tinted background, vivid lime-green accent */
+  --background: oklch(0.18 0.03 150);
+  --foreground: oklch(0.97 0.02 130);
+  --card: oklch(0.23 0.035 150);
+  --card-foreground: oklch(0.97 0.02 130);
+  --popover: oklch(0.23 0.035 150);
+  --popover-foreground: oklch(0.97 0.02 130);
+  --primary: oklch(0.82 0.22 135);              /* Rumble lime-green */
+  --primary-foreground: oklch(0.18 0.03 150);
+  --secondary: oklch(0.28 0.04 150);
+  --secondary-foreground: oklch(0.97 0.02 130);
+  --muted: oklch(0.25 0.03 150);
+  --muted-foreground: oklch(0.72 0.03 140);
+  --accent: oklch(0.34 0.06 145);
+  --accent-foreground: oklch(0.97 0.02 130);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.97 0.01 90);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.82 0.14 80);
-  --gold: oklch(0.82 0.14 80);
+  --ring: oklch(0.82 0.22 135);
+  --gold: oklch(0.82 0.22 135);
 
   --font-display: "Cormorant Garamond", "Playfair Display", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --gradient-hero: radial-gradient(ellipse at top, oklch(0.32 0.08 80 / 0.35), transparent 60%),
-                   linear-gradient(180deg, oklch(0.18 0.02 260) 0%, oklch(0.12 0.02 260) 100%);
-  --gradient-gold: linear-gradient(135deg, oklch(0.85 0.14 85), oklch(0.72 0.16 60));
-  --shadow-glow: 0 0 60px -10px oklch(0.82 0.14 80 / 0.4);
+  --gradient-hero: radial-gradient(ellipse at top, oklch(0.5 0.18 135 / 0.3), transparent 60%),
+                   linear-gradient(180deg, oklch(0.2 0.03 150) 0%, oklch(0.13 0.025 150) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.85 0.22 135), oklch(0.7 0.2 145));
+  --shadow-glow: 0 0 60px -10px oklch(0.82 0.22 135 / 0.45);
 }
 
 .dark { color-scheme: dark; }
