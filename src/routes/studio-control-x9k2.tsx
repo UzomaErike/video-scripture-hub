@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import type { Session } from "@supabase/supabase-js";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/studio-control-x9k2")({
   head: () => ({
     meta: [
       { title: "Admin — VideoBible" },

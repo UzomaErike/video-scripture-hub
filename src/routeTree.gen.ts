@@ -9,15 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AdminRouteImport } from './routes/admin'
+import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookBookIndexRouteImport } from './routes/book.$book.index'
 import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapter'
 
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
+  id: '/studio-control-x9k2',
+  path: '/studio-control-x9k2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -44,14 +44,14 @@ const BookBookChapterRoute = BookBookChapterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book': typeof BookBookIndexRoute
 }
@@ -59,20 +59,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/admin' | '/book/$book/$chapter' | '/book/$book/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/studio-control-x9k2'
+    | '/book/$book/$chapter'
+    | '/book/$book/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/admin' | '/book/$book/$chapter' | '/book/$book'
+  to:
+    | '/'
+    | '/about'
+    | '/studio-control-x9k2'
+    | '/book/$book/$chapter'
+    | '/book/$book'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/admin'
+    | '/studio-control-x9k2'
     | '/book/$book/$chapter'
     | '/book/$book/'
   fileRoutesById: FileRoutesById
@@ -80,18 +90,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  StudioControlX9k2Route: typeof StudioControlX9k2Route
   BookBookChapterRoute: typeof BookBookChapterRoute
   BookBookIndexRoute: typeof BookBookIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/studio-control-x9k2': {
+      id: '/studio-control-x9k2'
+      path: '/studio-control-x9k2'
+      fullPath: '/studio-control-x9k2'
+      preLoaderRoute: typeof StudioControlX9k2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -128,10 +138,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  StudioControlX9k2Route: StudioControlX9k2Route,
   BookBookChapterRoute: BookBookChapterRoute,
   BookBookIndexRoute: BookBookIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
