@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ChevronLeft, PlayCircle, Circle } from "lucide-react";
 
-export const Route = createFileRoute("/book/$book")({
+export const Route = createFileRoute("/book/$book/")({
   loader: ({ params }) => {
     const book = getBook(params.book);
     if (!book) throw notFound();
