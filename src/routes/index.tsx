@@ -79,7 +79,7 @@ function BookSection({ title, books }: { title: string; books: typeof BIBLE_BOOK
         {books.map((b) => (
           <Link
             key={b.slug}
-            to="/book/$book"
+            to="/book/$book/"
             params={{ book: b.slug }}
             className="group relative rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/40 transition-all p-4 overflow-hidden"
           >
