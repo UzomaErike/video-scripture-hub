@@ -83,7 +83,7 @@ function ChapterPage() {
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
           ) : video?.embed_html ? (
-            <div className="absolute inset-0" dangerouslySetInnerHTML={{ __html: video.embed_html }} />
+            <EmbedHtml html={video.embed_html} className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-center p-8">
               <div>
