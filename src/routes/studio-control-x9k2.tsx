@@ -289,9 +289,12 @@ function VideoManager({ email }: { email: string }) {
             className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
         </div>
         <div>
-          <label className="block text-sm mb-1.5">Rumble embed code (paste full &lt;iframe&gt; from Rumble's Share → Embed)</label>
+          <label className="block text-sm mb-1.5">Rumble embed code</label>
+          <p className="text-xs text-muted-foreground mb-2">
+            On Rumble click <span className="text-foreground">Share → Embed</span> (not Share → URL), then paste the full <code>&lt;iframe&gt;</code> or monetized <code>&lt;script&gt;</code> snippet. A plain <code>rumble.com/...html</code> page URL will not play here.
+          </p>
           <textarea value={embedHtml} onChange={(e) => setEmbedHtml(e.target.value)} rows={5}
-            placeholder='<iframe class="rumble" width="640" height="360" src="https://rumble.com/embed/..." frameborder="0" allowfullscreen></iframe>'
+            placeholder='<iframe class="rumble" src="https://rumble.com/embed/..." ...></iframe>  — or —  <script>...</script><div id="rumble_..."></div><script>Rumble("play",{...})</script>'
             className="w-full rounded-md bg-background border border-border px-3 py-2.5 font-mono text-xs" />
         </div>
         <div className="flex gap-3">
