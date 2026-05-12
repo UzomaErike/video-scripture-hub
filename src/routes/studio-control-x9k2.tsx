@@ -197,9 +197,25 @@ function VideoManager({ email }: { email: string }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!embedHtml.trim()) { toast.error("Paste the Rumble embed code"); return; }
-    if (!/<iframe[\s\S]*<\/iframe>/i.test(embedHtml) && !embedHtml.includes("rumble.com")) {
-      toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> code from Rumble's Share → Embed.");
+    const trimmed = embedHtml.trim();
+    if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
+
+    // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
+    // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
+    // the page slug is not the same as the embed ID.
+    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
+    if (looksLikePageUrl) {
+      toast.error(
+        "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
+        { duration: 9000 },
+      );
+      return;
+    }
+
+    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
+    const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
+    if (!hasIframe && !hasScript) {
+      toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
       return;
     }
     setBusy(true);
@@ -273,9 +289,12 @@ function VideoManager({ email }: { email: string }) {
             className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
         </div>
         <div>
-          <label className="block text-sm mb-1.5">Rumble embed code (paste full &lt;iframe&gt; from Rumble's Share → Embed)</label>
+          <label className="block text-sm mb-1.5">Rumble embed code</label>
+          <p className="text-xs text-muted-foreground mb-2">
+            On Rumble click <span className="text-foreground">Share → Embed</span> (not Share → URL), then paste the full <code>&lt;iframe&gt;</code> or monetized <code>&lt;script&gt;</code> snippet. A plain <code>rumble.com/...html</code> page URL will not play here.
+          </p>
           <textarea value={embedHtml} onChange={(e) => setEmbedHtml(e.target.value)} rows={5}
-            placeholder='<iframe class="rumble" width="640" height="360" src="https://rumble.com/embed/..." frameborder="0" allowfullscreen></iframe>'
+            placeholder='<iframe class="rumble" src="https://rumble.com/embed/..." ...></iframe>  — or —  <script>...</script><div id="rumble_..."></div><script>Rumble("play",{...})</script>'
             className="w-full rounded-md bg-background border border-border px-3 py-2.5 font-mono text-xs" />
         </div>
         <div className="flex gap-3">
