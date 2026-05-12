@@ -36,9 +36,9 @@ const BookBookIndexRoute = BookBookIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookBookChapterRoute = BookBookChapterRouteImport.update({
-  id: '/$chapter',
-  path: '/$chapter',
-  getParentRoute: () => BookBookRoute,
+  id: '/book/$book/$chapter',
+  path: '/book/$book/$chapter',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -81,6 +81,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  BookBookChapterRoute: typeof BookBookChapterRoute
   BookBookIndexRoute: typeof BookBookIndexRoute
 }
 
@@ -116,10 +117,10 @@ declare module '@tanstack/react-router' {
     }
     '/book/$book/$chapter': {
       id: '/book/$book/$chapter'
-      path: '/$chapter'
+      path: '/book/$book/$chapter'
       fullPath: '/book/$book/$chapter'
       preLoaderRoute: typeof BookBookChapterRouteImport
-      parentRoute: typeof BookBookRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -128,18 +129,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  BookBookChapterRoute: BookBookChapterRoute,
   BookBookIndexRoute: BookBookIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
