@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import type { Session } from "@supabase/supabase-js";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/studio-control-x9k2")({
   head: () => ({
     meta: [
       { title: "Admin — VideoBible" },
@@ -89,7 +89,7 @@ function AuthForm() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const redirectUrl = `${window.location.origin}/admin`;
+        const redirectUrl = `${window.location.origin}/studio-control-x9k2`;
         const { error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: redirectUrl },

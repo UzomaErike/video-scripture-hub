@@ -29,9 +29,8 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 mt-24">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 text-sm text-muted-foreground flex flex-col sm:flex-row gap-3 justify-between">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 text-sm text-muted-foreground">
         <p>© {new Date().getFullYear()} VideoBible. All scripture videos hosted on Rumble.</p>
-        <Link to="/admin" className="hover:text-foreground transition-colors">Admin</Link>
       </div>
     </footer>
   );
