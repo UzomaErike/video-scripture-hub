@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { EmbedHtml } from "@/components/embed-html";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/book/$book/$chapter")({
