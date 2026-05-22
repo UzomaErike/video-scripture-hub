@@ -21,6 +21,7 @@ export const Route = createFileRoute("/books")({
 
 function BooksPage() {
   const [filter, setFilter] = useState<Filter>("old");
+  const [search, setSearch] = useState("");
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [covers, setCovers] = useState<Record<string, string>>({});
 
@@ -47,8 +48,14 @@ function BooksPage() {
     })();
   }, []);
 
-  const ot = BIBLE_BOOKS.filter((b) => b.testament === "old");
-  const nt = BIBLE_BOOKS.filter((b) => b.testament === "new");
+  const searchLower = search.trim().toLowerCase();
+  const matchesSearch = (b: BibleBook) =>
+    !searchLower ||
+    b.name.toLowerCase().includes(searchLower) ||
+    b.slug.toLowerCase().includes(searchLower);
+
+  const ot = BIBLE_BOOKS.filter((b) => b.testament === "old" && matchesSearch(b));
+  const nt = BIBLE_BOOKS.filter((b) => b.testament === "new" && matchesSearch(b));
 
   return (
     <div className="min-h-screen flex flex-col">
