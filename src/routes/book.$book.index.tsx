@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { ChevronLeft, PlayCircle, Circle } from "lucide-react";
+import { ChevronLeft, PlayCircle, Circle, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/book/$book/")({
   loader: ({ params }) => {
@@ -62,6 +62,11 @@ function BookPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-10 flex-1">
+        <div className="flex items-center mb-4">
+          <Link to="/books" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Link>
+        </div>
         <nav className="text-sm text-muted-foreground mb-6 text-center">
           <Link to="/" className="hover:text-primary transition">Home</Link>
           <span className="mx-2">›</span>

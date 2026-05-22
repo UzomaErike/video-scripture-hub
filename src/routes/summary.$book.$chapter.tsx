@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { ChevronLeft, ChevronRight, List, PlayCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, PlayCircle, ArrowLeft } from "lucide-react";
 
 type SectionPoint = { title?: string; body: string };
 type Section = { heading: string; points?: SectionPoint[]; body?: string };
@@ -76,6 +76,11 @@ function SummaryPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10 flex-1">
+        <div className="flex items-center mb-4">
+          <Link to="/summary" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Link>
+        </div>
         {/* Top nav strip */}
         <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
           {prev ? (

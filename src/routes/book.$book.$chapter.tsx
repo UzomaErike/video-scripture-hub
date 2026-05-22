@@ -4,7 +4,7 @@ import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmbedHtml } from "@/components/embed-html";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/book/$book/$chapter")({
   loader: ({ params }) => {
@@ -68,6 +68,11 @@ function ChapterPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 flex-1">
+        <div className="flex items-center mb-4">
+          <Link to="/book/$book/" params={{ book: book.slug }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Link>
+        </div>
         <nav className="text-sm text-muted-foreground mb-6 text-center">
           <Link to="/" className="hover:text-primary transition">Home</Link>
           <span className="mx-2">›</span>
