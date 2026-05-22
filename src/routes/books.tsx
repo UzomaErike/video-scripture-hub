@@ -164,7 +164,10 @@ function BookCard({
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
           {testamentLabel} · {book.category}
         </span>
-        <h3 className="font-display text-lg leading-tight truncate">{book.name}</h3>
+        <h3 className="font-display text-lg leading-tight truncate">
+          <span className="mr-1">{book.emoji}</span>
+          {book.name}
+        </h3>
       </div>
     </Link>
   );
