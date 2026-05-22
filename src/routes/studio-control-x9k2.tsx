@@ -339,7 +339,44 @@ function VideoManager({ email }: { email: string }) {
             </button>
           )}
         </div>
+        </div>
       </form>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="font-display text-xl mb-1">{book.name} cover image</h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          Shown on the Books page card. Recommended aspect ratio <span className="text-foreground">3:4</span> (portrait).
+        </p>
+        <div className="flex items-start gap-4">
+          <div className="w-32 aspect-[3/4] rounded-md overflow-hidden bg-background border border-border shrink-0">
+            {coverUrl ? (
+              <img src={coverUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No cover</div>
+            )}
+          </div>
+          <div className="flex-1 space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploadingCover}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadCover(f);
+                e.target.value = "";
+              }}
+              className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:px-4 file:py-2 file:font-medium file:cursor-pointer"
+            />
+            {uploadingCover && <p className="text-xs text-muted-foreground">Uploading…</p>}
+            {coverUrl && (
+              <button type="button" onClick={removeCover}
+                className="text-sm text-destructive hover:underline">
+                Remove cover
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div>
         <h3 className="font-display text-2xl mb-3">{book.name} progress</h3>
