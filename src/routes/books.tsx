@@ -141,6 +141,13 @@ function BookCard({
     >
       <div className="absolute inset-x-0 -top-12 h-24 bg-primary/0 group-hover:bg-primary/10 blur-3xl transition-all pointer-events-none" />
 
+      {videoCount > 0 && (
+        <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center gap-1 rounded-full bg-background/85 backdrop-blur border border-border px-2 py-0.5 text-xs font-medium text-primary">
+          <Play className="h-3 w-3 fill-current" />
+          {videoCount}
+        </span>
+      )}
+
       <div className="flex-1 min-w-0 flex flex-col pr-1">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
           {testamentLabel} · {book.category}
@@ -163,12 +170,6 @@ function BookCard({
             className="w-full h-full object-cover transition-transform group-hover:scale-105"
           />
         ) : null}
-        {videoCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center gap-1 rounded-full bg-background/85 backdrop-blur border border-border px-2 py-0.5 text-xs font-medium text-primary">
-            <Play className="h-3 w-3 fill-current" />
-            {videoCount}
-          </span>
-        )}
       </div>
     </Link>
   );
