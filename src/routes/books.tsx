@@ -141,6 +141,10 @@ function BookCard({
     >
       <div className="absolute inset-x-0 -top-12 h-24 bg-primary/0 group-hover:bg-primary/10 blur-3xl transition-all pointer-events-none" />
 
+      <span className="absolute top-2 right-2 z-10 inline-flex items-center rounded-full bg-background/85 backdrop-blur border border-border px-2 py-0.5 text-xs font-semibold text-primary">
+        {book.chapters}
+      </span>
+
       <div className="flex-1 min-w-0 flex flex-col pr-1">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
           {testamentLabel} · {book.category}
@@ -149,9 +153,6 @@ function BookCard({
           {book.emoji}
         </span>
         <h3 className="font-display text-lg leading-tight mb-1 truncate">{book.name}</h3>
-        <p className="text-xs text-muted-foreground mt-auto">
-          <span className="font-semibold text-primary">{book.chapters}</span> chapters
-        </p>
       </div>
 
       <div className="relative w-[42%] shrink-0 aspect-[3/4] rounded-md overflow-hidden bg-background/40 self-end">
