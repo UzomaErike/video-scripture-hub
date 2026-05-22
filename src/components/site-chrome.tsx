@@ -1,5 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+
+const navItems = [
+  { label: "Audio Bible", href: "#", icon: Headphones },
+  { label: "Chapter Summaries", href: "#", icon: FileText },
+  { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
+  { label: "Support This Mission", href: "#", icon: Heart },
+  { label: "Contact Us", href: "#", icon: Mail },
+  { label: "About Us", href: "#", icon: Info },
+];
 
 export function SiteHeader() {
   return (
@@ -13,14 +24,50 @@ export function SiteHeader() {
             Video<span className="text-primary">Bible</span>
           </span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-muted-foreground">
+
+        {/* Desktop tabs */}
+        <nav className="hidden lg:flex items-center gap-5 text-sm text-muted-foreground">
           <Link to="/books" activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors">
             Books
           </Link>
-          <Link to="/about" activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors">
-            About
-          </Link>
+          {navItems.map((item) => (
+            <a key={item.label} href={item.href} className="hover:text-foreground transition-colors whitespace-nowrap">
+              {item.label}
+            </a>
+          ))}
         </nav>
+
+        {/* Mobile sidebar trigger */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-72">
+            <SheetHeader>
+              <SheetTitle className="text-left font-display text-xl">
+                Video<span className="text-primary">Bible</span>
+              </SheetTitle>
+            </SheetHeader>
+            <nav className="mt-6 flex flex-col gap-1">
+              <Link to="/books" className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors">
+                <BookOpen className="h-4 w-4" />
+                Books
+              </Link>
+              {navItems.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors"
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
