@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Play, Search } from "lucide-react";
 import { BIBLE_BOOKS, type BibleBook } from "@/lib/bible-books";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/books")({
 
 function BooksPage() {
   const [filter, setFilter] = useState<Filter>("old");
+  const [search, setSearch] = useState("");
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [covers, setCovers] = useState<Record<string, string>>({});
 
@@ -47,8 +48,14 @@ function BooksPage() {
     })();
   }, []);
 
-  const ot = BIBLE_BOOKS.filter((b) => b.testament === "old");
-  const nt = BIBLE_BOOKS.filter((b) => b.testament === "new");
+  const searchLower = search.trim().toLowerCase();
+  const matchesSearch = (b: BibleBook) =>
+    !searchLower ||
+    b.name.toLowerCase().includes(searchLower) ||
+    b.slug.toLowerCase().includes(searchLower);
+
+  const ot = BIBLE_BOOKS.filter((b) => b.testament === "old" && matchesSearch(b));
+  const nt = BIBLE_BOOKS.filter((b) => b.testament === "new" && matchesSearch(b));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,6 +73,19 @@ function BooksPage() {
             <TabButton active={filter === "old"} onClick={() => setFilter("old")}>Old Testament</TabButton>
             <TabButton active={filter === "new"} onClick={() => setFilter("new")}>New Testament</TabButton>
             <TabButton active={filter === "all"} onClick={() => setFilter("all")}>All Books</TabButton>
+          </div>
+        </div>
+
+        <div className="flex justify-center mb-10">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search books"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-full border border-border bg-card pl-9 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition"
+            />
           </div>
         </div>
 
