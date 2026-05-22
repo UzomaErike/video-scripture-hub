@@ -34,12 +34,21 @@ function HomePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-20 sm:py-28 text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-primary/80 mb-4">A cinematic scripture library</p>
           <h1 className="font-display text-5xl sm:text-7xl font-semibold leading-[1.05] mb-6">
-            Every chapter.<br/>
-            <span className="text-primary">Every book.</span> On video.
+            The World's First<br/>
+            <span className="text-primary">Video Bible</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            A growing library of over 1,000 videos walking through every chapter of all 66 books of the Bible.
+            Explore every book and chapter of the Holy Bible through the power of video. A growing catalogue of teachings, documentaries and studies.
           </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+            <Link
+              to="/book/genesis"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-8 py-4 text-base font-medium shadow hover:bg-primary/90 transition"
+            >
+              <Play className="h-5 w-5" />
+              Watch Now
+            </Link>
+          </div>
           <div className="relative max-w-xl mx-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
