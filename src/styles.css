@@ -68,6 +68,35 @@
 
 .dark { color-scheme: dark; }
 
+.light {
+  color-scheme: light;
+  --background: oklch(0.97 0.01 100);
+  --foreground: oklch(0.2 0.03 150);
+  --card: oklch(0.95 0.01 100);
+  --card-foreground: oklch(0.2 0.03 150);
+  --popover: oklch(0.95 0.01 100);
+  --popover-foreground: oklch(0.2 0.03 150);
+  --primary: oklch(0.55 0.16 132);
+  --primary-foreground: oklch(0.97 0.01 100);
+  --secondary: oklch(0.92 0.02 150);
+  --secondary-foreground: oklch(0.2 0.03 150);
+  --muted: oklch(0.9 0.01 150);
+  --muted-foreground: oklch(0.5 0.04 140);
+  --accent: oklch(0.88 0.03 145);
+  --accent-foreground: oklch(0.2 0.03 150);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.97 0.01 90);
+  --border: oklch(0.2 0.03 150 / 12%);
+  --input: oklch(0.2 0.03 150 / 15%);
+  --ring: oklch(0.55 0.16 132);
+  --gold: oklch(0.55 0.16 132);
+
+  --gradient-hero: radial-gradient(ellipse at top, oklch(0.5 0.18 132 / 0.15), transparent 60%),
+                   linear-gradient(180deg, oklch(0.95 0.01 100) 0%, oklch(0.9 0.02 150) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.6 0.17 132), oklch(0.5 0.16 138));
+  --shadow-glow: 0 0 60px -10px oklch(0.55 0.16 132 / 0.3);
+}
+
 @layer base {
   * { border-color: var(--color-border); }
   html, body { background-color: var(--color-background); color: var(--color-foreground); }

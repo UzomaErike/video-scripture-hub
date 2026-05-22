@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,7 @@ const navItems: NavItem[] = [
   { label: "Support This Mission", href: "#", icon: Heart },
   { label: "Contact Us", href: "#", icon: Mail },
   { label: "About Us", href: "#", icon: Info },
+  { label: "Settings", to: "/settings", icon: Settings },
 ];
 
 export function SiteHeader() {
