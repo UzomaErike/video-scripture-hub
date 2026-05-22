@@ -171,15 +171,18 @@ function VideoManager({ email }: { email: string }) {
   const [busy, setBusy] = useState(false);
   const [existing, setExisting] = useState<VideoRow[]>([]);
   const [editingHtml, setEditingHtml] = useState("");
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   useEffect(() => { setChapter(1); }, [bookSlug]);
 
   useEffect(() => {
     refresh();
+    supabase.from("book_covers").select("image_url").eq("book_slug", bookSlug).maybeSingle()
+      .then(({ data }) => setCoverUrl(data?.image_url ?? null));
   }, [bookSlug]);
 
   useEffect(() => {
-    // Load existing for selected chapter
     supabase.from("videos").select("embed_html,title")
       .eq("book_slug", bookSlug).eq("chapter", chapter).maybeSingle()
       .then(({ data }) => {
@@ -193,6 +196,35 @@ function VideoManager({ email }: { email: string }) {
     const { data } = await supabase.from("videos").select("book_slug,chapter,title")
       .eq("book_slug", bookSlug).order("chapter");
     setExisting(data ?? []);
+  }
+
+  async function uploadCover(file: File) {
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${bookSlug}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("book-covers")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("book-covers").getPublicUrl(path);
+      const { error: dbErr } = await supabase.from("book_covers")
+        .upsert({ book_slug: bookSlug, image_url: pub.publicUrl }, { onConflict: "book_slug" });
+      if (dbErr) throw dbErr;
+      setCoverUrl(pub.publicUrl);
+      toast.success("Cover uploaded");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  async function removeCover() {
+    if (!confirm(`Remove cover for ${book.name}?`)) return;
+    const { error } = await supabase.from("book_covers").delete().eq("book_slug", bookSlug);
+    if (error) { toast.error(error.message); return; }
+    setCoverUrl(null);
+    toast.success("Cover removed");
   }
 
   async function save(e: React.FormEvent) {
@@ -308,6 +340,42 @@ function VideoManager({ email }: { email: string }) {
           )}
         </div>
       </form>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="font-display text-xl mb-1">{book.name} cover image</h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          Shown on the Books page card. Recommended aspect ratio <span className="text-foreground">3:4</span> (portrait).
+        </p>
+        <div className="flex items-start gap-4">
+          <div className="w-32 aspect-[3/4] rounded-md overflow-hidden bg-background border border-border shrink-0">
+            {coverUrl ? (
+              <img src={coverUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No cover</div>
+            )}
+          </div>
+          <div className="flex-1 space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploadingCover}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadCover(f);
+                e.target.value = "";
+              }}
+              className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:px-4 file:py-2 file:font-medium file:cursor-pointer"
+            />
+            {uploadingCover && <p className="text-xs text-muted-foreground">Uploading…</p>}
+            {coverUrl && (
+              <button type="button" onClick={removeCover}
+                className="text-sm text-destructive hover:underline">
+                Remove cover
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div>
         <h3 className="font-display text-2xl mb-3">{book.name} progress</h3>
