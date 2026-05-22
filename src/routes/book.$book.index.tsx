@@ -62,17 +62,18 @@ function BookPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-10 flex-1">
-        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ChevronLeft className="h-4 w-4" /> All books
-        </Link>
-        <div className="mb-10">
+        <nav className="text-sm text-muted-foreground mb-6 text-center">
+          <Link to="/" className="hover:text-primary transition">Home</Link>
+          <span className="mx-2">›</span>
+          <Link to="/books" className="hover:text-primary transition">Books</Link>
+          <span className="mx-2">›</span>
+          <span className="text-foreground">{book.name}</span>
+        </nav>
+        <div className="mb-10 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-primary/80 mb-2">
             {book.testament === "old" ? "Old Testament" : "New Testament"}
           </p>
-          <h1 className="font-display text-5xl sm:text-6xl mb-3">{book.name}</h1>
-          <p className="text-muted-foreground">
-            {book.chapters} chapter{book.chapters > 1 ? "s" : ""} · Select a chapter to watch
-          </p>
+          <h1 className="font-display text-5xl sm:text-6xl">{book.name}</h1>
         </div>
 
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2.5">
