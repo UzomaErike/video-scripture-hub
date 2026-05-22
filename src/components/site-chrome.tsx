@@ -3,9 +3,16 @@ import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  icon: typeof Headphones;
+  to?: string;
+  href?: string;
+};
+
+const navItems: NavItem[] = [
   { label: "Audio Bible", href: "#", icon: Headphones },
-  { label: "Chapter Summaries", href: "#", icon: FileText },
+  { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart },
   { label: "Contact Us", href: "#", icon: Mail },
