@@ -137,41 +137,38 @@ function BookCard({
     <Link
       to="/book/$book/"
       params={{ book: book.slug }}
-      className="group relative rounded-xl border border-border bg-card hover:border-primary/60 hover:bg-accent/40 transition-all p-4 overflow-hidden"
+      className="group relative rounded-xl border border-border bg-card hover:border-primary/60 hover:bg-accent/40 transition-all overflow-hidden flex gap-3 p-3"
     >
-      <div className="absolute inset-x-0 -top-12 h-24 bg-primary/0 group-hover:bg-primary/10 blur-3xl transition-all" />
+      <div className="absolute inset-x-0 -top-12 h-24 bg-primary/0 group-hover:bg-primary/10 blur-3xl transition-all pointer-events-none" />
 
-      {videoCount > 0 && (
-        <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-background/80 backdrop-blur border border-border px-2 py-0.5 text-xs font-medium text-primary">
-          <Play className="h-3 w-3 fill-current" />
-          {videoCount}
+      <div className="flex-1 min-w-0 flex flex-col pr-1">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
+          {testamentLabel} · {book.category}
         </span>
-      )}
+        <span className="text-4xl mb-2 transition-transform group-hover:scale-110" aria-hidden>
+          {book.emoji}
+        </span>
+        <h3 className="font-display text-lg leading-tight mb-1 truncate">{book.name}</h3>
+        <p className="text-xs text-muted-foreground mt-auto">
+          <span className="font-semibold text-primary">{book.chapters}</span> chapters
+        </p>
+      </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 min-w-0 flex flex-col">
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
-            {testamentLabel} · {book.category}
+      <div className="relative w-[42%] shrink-0 aspect-[3/4] rounded-md overflow-hidden bg-background/40 self-start">
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt={`${book.name} cover`}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : null}
+        {videoCount > 0 && (
+          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center gap-1 rounded-full bg-background/85 backdrop-blur border border-border px-2 py-0.5 text-xs font-medium text-primary">
+            <Play className="h-3 w-3 fill-current" />
+            {videoCount}
           </span>
-          <span className="text-4xl mb-2 transition-transform group-hover:scale-110" aria-hidden>
-            {book.emoji}
-          </span>
-          <h3 className="font-display text-lg leading-tight mb-1 truncate">{book.name}</h3>
-          <p className="text-xs text-muted-foreground mt-auto">
-            <span className="font-semibold text-primary">{book.chapters}</span> chapters
-          </p>
-        </div>
-
-        <div className="w-[38%] shrink-0 aspect-[3/4] rounded-md overflow-hidden bg-background/40">
-          {coverUrl ? (
-            <img
-              src={coverUrl}
-              alt={`${book.name} cover`}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-            />
-          ) : null}
-        </div>
+        )}
       </div>
     </Link>
   );
