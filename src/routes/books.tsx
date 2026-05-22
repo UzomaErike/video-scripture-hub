@@ -161,7 +161,7 @@ function BookCard({
         </p>
       </div>
 
-      <div className="relative w-[42%] shrink-0 aspect-[3/4] rounded-md overflow-hidden bg-background/40 self-end">
+      <div className="relative w-[56%] shrink-0 aspect-square rounded-md overflow-hidden bg-background/40 self-end">
         {coverUrl ? (
           <img
             src={coverUrl}
