@@ -91,7 +91,8 @@ function BookPage() {
                 params={{ book: book.slug, chapter: String(c) }}
                 className="group aspect-square rounded-md border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all flex flex-col items-center justify-center relative"
               >
-                <span className="font-display text-2xl">{c}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground leading-none mb-0.5">Chapter</span>
+                <span className="font-display text-xl leading-none">{c}</span>
                 {has ? (
                   <PlayCircle className="absolute bottom-1.5 h-3.5 w-3.5 text-primary" />
                 ) : (
