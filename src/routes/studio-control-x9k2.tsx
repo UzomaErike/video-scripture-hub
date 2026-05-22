@@ -339,7 +339,6 @@ function VideoManager({ email }: { email: string }) {
             </button>
           )}
         </div>
-        </div>
       </form>
 
       <div className="rounded-lg border border-border bg-card p-6">
