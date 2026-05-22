@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
+import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookBookIndexRouteImport } from './routes/book.$book.index'
@@ -18,6 +19,11 @@ import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapte
 const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
   id: '/studio-control-x9k2',
   path: '/studio-control-x9k2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -44,6 +50,7 @@ const BookBookChapterRoute = BookBookChapterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/books': typeof BooksRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/books': typeof BooksRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book': typeof BookBookIndexRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/books': typeof BooksRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/books'
     | '/studio-control-x9k2'
     | '/book/$book/$chapter'
     | '/book/$book/'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/books'
     | '/studio-control-x9k2'
     | '/book/$book/$chapter'
     | '/book/$book'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/books'
     | '/studio-control-x9k2'
     | '/book/$book/$chapter'
     | '/book/$book/'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BooksRoute: typeof BooksRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
   BookBookChapterRoute: typeof BookBookChapterRoute
   BookBookIndexRoute: typeof BookBookIndexRoute
@@ -102,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/studio-control-x9k2'
       fullPath: '/studio-control-x9k2'
       preLoaderRoute: typeof StudioControlX9k2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -138,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BooksRoute: BooksRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,
   BookBookChapterRoute: BookBookChapterRoute,
   BookBookIndexRoute: BookBookIndexRoute,
