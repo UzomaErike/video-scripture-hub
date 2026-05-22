@@ -20,7 +20,7 @@ function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden flex-1 flex items-center justify-center" style={{ background: "var(--gradient-hero)" }}>
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-20 sm:py-28 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-primary/80 mb-4">A cinematic scripture library</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-primary/80 mb-4">The Living Word in Motion</p>
           <h1 className="font-display text-5xl sm:text-7xl font-semibold leading-[1.05] mb-6">
             The World's First<br/>
             <span className="text-primary">Video Bible</span>
