@@ -70,7 +70,7 @@
 
 .light {
   color-scheme: light;
-  --background: oklch(0.97 0.01 100);
+  --background: oklch(0.91 0.03 130);
   --foreground: oklch(0.2 0.03 150);
   --card: oklch(0.95 0.01 100);
   --card-foreground: oklch(0.2 0.03 150);
