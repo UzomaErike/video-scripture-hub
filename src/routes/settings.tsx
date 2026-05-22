@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,11 @@ function getInitialTheme() {
   return localStorage.getItem("theme") === "light";
 }
 
-export default function SettingsPage() {
+export const Route = createFileRoute("/settings")({
+  component: SettingsPage,
+});
+
+function SettingsPage() {
   const [isLight, setIsLight] = useState(getInitialTheme);
 
   useEffect(() => {
