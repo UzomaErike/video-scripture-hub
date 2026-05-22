@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,13 @@ export const Route = createFileRoute("/book/$book/")({
 
 function BookPage() {
   const { book } = Route.useLoaderData();
+  const router = useRouter();
+  const canGoBack = useRouterState({ select: (s) => s.location.state?.__TSR_index !== 0 });
+
+  const handleBack = () => {
+    if (canGoBack) router.history.back();
+    else router.navigate({ to: "/books" });
+  };
 
   const { data: videos } = useQuery({
     queryKey: ["videos", book.slug],
@@ -63,9 +70,9 @@ function BookPage() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-10 flex-1">
         <div className="flex items-center mb-4">
-          <Link to="/books" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
+          <button onClick={handleBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
             <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
+          </button>
         </div>
         <nav className="text-sm text-muted-foreground mb-6 text-center">
           <Link to="/" className="hover:text-primary transition">Home</Link>
