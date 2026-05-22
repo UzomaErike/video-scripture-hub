@@ -161,7 +161,7 @@ function BookCard({
       </div>
 
       <div className="p-3 text-center">
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+        <span className="inline-block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 px-2 py-0.5 rounded border border-primary/30 bg-primary/5">
           {testamentLabel} · {book.category}
         </span>
         <h3 className="font-display text-lg leading-tight truncate">
