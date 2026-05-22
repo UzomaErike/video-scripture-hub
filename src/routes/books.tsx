@@ -55,17 +55,18 @@ function BooksPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-7xl w-full px-4 sm:px-6 py-10 sm:py-14 flex-1">
-        <nav className="text-sm text-muted-foreground mb-6">
+        <nav className="text-sm text-muted-foreground mb-6 text-center">
           <Link to="/" className="hover:text-primary transition">Home</Link>
           <span className="mx-2">›</span>
           <span className="text-foreground">Books</span>
         </nav>
 
-
-        <div className="inline-flex rounded-full border border-border bg-card p-1 mb-10">
-          <TabButton active={filter === "old"} onClick={() => setFilter("old")}>Old Testament</TabButton>
-          <TabButton active={filter === "new"} onClick={() => setFilter("new")}>New Testament</TabButton>
-          <TabButton active={filter === "all"} onClick={() => setFilter("all")}>All Books</TabButton>
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex rounded-full border border-border bg-card p-1">
+            <TabButton active={filter === "old"} onClick={() => setFilter("old")}>Old Testament</TabButton>
+            <TabButton active={filter === "new"} onClick={() => setFilter("new")}>New Testament</TabButton>
+            <TabButton active={filter === "all"} onClick={() => setFilter("all")}>All Books</TabButton>
+          </div>
         </div>
 
         {(filter === "old" || filter === "all") && (
