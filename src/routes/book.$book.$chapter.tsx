@@ -68,15 +68,21 @@ function ChapterPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 flex-1">
-        <Link to="/book/$book/" params={{ book: book.slug }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
-          <ChevronLeft className="h-4 w-4" /> {book.name}
-        </Link>
+        <nav className="text-sm text-muted-foreground mb-6 text-center">
+          <Link to="/" className="hover:text-primary transition">Home</Link>
+          <span className="mx-2">›</span>
+          <Link to="/books" className="hover:text-primary transition">Books</Link>
+          <span className="mx-2">›</span>
+          <Link to="/book/$book/" params={{ book: book.slug }} className="hover:text-primary transition">{book.name}</Link>
+          <span className="mx-2">›</span>
+          <span className="text-foreground">Chapter {chapter}</span>
+        </nav>
 
-        <div className="flex items-baseline justify-between mb-6 flex-wrap gap-2">
+        <div className="text-center mb-6">
           <h1 className="font-display text-4xl sm:text-5xl">
             {book.name} <span className="text-primary">{chapter}</span>
           </h1>
-          {video?.title && <p className="text-muted-foreground">{video.title}</p>}
+          {video?.title && <p className="text-muted-foreground mt-2">{video.title}</p>}
         </div>
 
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
