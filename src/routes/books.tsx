@@ -61,12 +61,6 @@ function BooksPage() {
           <span className="text-foreground">Books</span>
         </nav>
 
-        <h1 className="font-display text-3xl sm:text-5xl font-semibold mb-3 flex items-center gap-3">
-          <span>📖</span> Browse the Bible
-        </h1>
-        <p className="text-muted-foreground mb-8 max-w-2xl">
-          Select a book to explore its chapters through video.
-        </p>
 
         <div className="inline-flex rounded-full border border-border bg-card p-1 mb-10">
           <TabButton active={filter === "old"} onClick={() => setFilter("old")}>Old Testament</TabButton>
