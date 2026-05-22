@@ -171,15 +171,18 @@ function VideoManager({ email }: { email: string }) {
   const [busy, setBusy] = useState(false);
   const [existing, setExisting] = useState<VideoRow[]>([]);
   const [editingHtml, setEditingHtml] = useState("");
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   useEffect(() => { setChapter(1); }, [bookSlug]);
 
   useEffect(() => {
     refresh();
+    supabase.from("book_covers").select("image_url").eq("book_slug", bookSlug).maybeSingle()
+      .then(({ data }) => setCoverUrl(data?.image_url ?? null));
   }, [bookSlug]);
 
   useEffect(() => {
-    // Load existing for selected chapter
     supabase.from("videos").select("embed_html,title")
       .eq("book_slug", bookSlug).eq("chapter", chapter).maybeSingle()
       .then(({ data }) => {
@@ -193,6 +196,35 @@ function VideoManager({ email }: { email: string }) {
     const { data } = await supabase.from("videos").select("book_slug,chapter,title")
       .eq("book_slug", bookSlug).order("chapter");
     setExisting(data ?? []);
+  }
+
+  async function uploadCover(file: File) {
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${bookSlug}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("book-covers")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("book-covers").getPublicUrl(path);
+      const { error: dbErr } = await supabase.from("book_covers")
+        .upsert({ book_slug: bookSlug, image_url: pub.publicUrl }, { onConflict: "book_slug" });
+      if (dbErr) throw dbErr;
+      setCoverUrl(pub.publicUrl);
+      toast.success("Cover uploaded");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  async function removeCover() {
+    if (!confirm(`Remove cover for ${book.name}?`)) return;
+    const { error } = await supabase.from("book_covers").delete().eq("book_slug", bookSlug);
+    if (error) { toast.error(error.message); return; }
+    setCoverUrl(null);
+    toast.success("Cover removed");
   }
 
   async function save(e: React.FormEvent) {
