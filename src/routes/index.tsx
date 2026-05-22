@@ -42,7 +42,7 @@ function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
             <Link
-              to="/book/genesis"
+              to="/books"
               className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-8 py-4 text-base font-medium shadow hover:bg-primary/90 transition"
             >
               <Play className="h-5 w-5" />
