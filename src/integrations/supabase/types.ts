@@ -35,6 +35,51 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_summaries: {
+        Row: {
+          book_slug: string
+          chapter: number
+          connection_to_jesus: string | null
+          contemporary_relevance: string | null
+          created_at: string
+          id: string
+          intro: string | null
+          key_verses: Json
+          sections: Json
+          themes: string[]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          book_slug: string
+          chapter: number
+          connection_to_jesus?: string | null
+          contemporary_relevance?: string | null
+          created_at?: string
+          id?: string
+          intro?: string | null
+          key_verses?: Json
+          sections?: Json
+          themes?: string[]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          book_slug?: string
+          chapter?: number
+          connection_to_jesus?: string | null
+          contemporary_relevance?: string | null
+          created_at?: string
+          id?: string
+          intro?: string | null
+          key_verses?: Json
+          sections?: Json
+          themes?: string[]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

@@ -3,9 +3,16 @@ import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  icon: typeof Headphones;
+  to?: string;
+  href?: string;
+};
+
+const navItems: NavItem[] = [
   { label: "Audio Bible", href: "#", icon: Headphones },
-  { label: "Chapter Summaries", href: "#", icon: FileText },
+  { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart },
   { label: "Contact Us", href: "#", icon: Mail },
@@ -30,11 +37,17 @@ export function SiteHeader() {
           <Link to="/books" activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors">
             Books
           </Link>
-          {navItems.map((item) => (
-            <a key={item.label} href={item.href} className="hover:text-foreground transition-colors whitespace-nowrap">
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) =>
+            item.to ? (
+              <Link key={item.label} to={item.to} activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors whitespace-nowrap">
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.label} href={item.href} className="hover:text-foreground transition-colors whitespace-nowrap">
+                {item.label}
+              </a>
+            )
+          )}
         </nav>
 
         {/* Mobile sidebar trigger */}
@@ -55,16 +68,27 @@ export function SiteHeader() {
                 <BookOpen className="h-4 w-4" />
                 Books
               </Link>
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </a>
-              ))}
+              {navItems.map((item) =>
+                item.to ? (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </a>
+                )
+              )}
             </nav>
           </SheetContent>
         </Sheet>
