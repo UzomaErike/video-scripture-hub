@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { BIBLE_BOOKS } from "@/lib/bible-books";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { Search, PlayCircle } from "lucide-react";
+import { Search, PlayCircle, Play } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
