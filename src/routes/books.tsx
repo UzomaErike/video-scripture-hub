@@ -132,7 +132,7 @@ function BookCard({
     <Link
       to="/book/$book/"
       params={{ book: book.slug }}
-      className="group relative rounded-xl border border-border bg-card hover:border-primary/60 hover:bg-accent/40 transition-all overflow-hidden flex gap-3 p-3"
+      className="group relative rounded-xl border border-border bg-card hover:border-primary/60 hover:bg-accent/40 transition-all overflow-hidden flex flex-col"
     >
       <div className="absolute inset-x-0 -top-12 h-24 bg-primary/0 group-hover:bg-primary/10 blur-3xl transition-all pointer-events-none" />
 
@@ -143,20 +143,7 @@ function BookCard({
         </span>
       )}
 
-      <div className="flex-1 min-w-0 flex flex-col pr-1">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
-          {testamentLabel} · {book.category}
-        </span>
-        <span className="text-4xl mb-2 transition-transform group-hover:scale-110" aria-hidden>
-          {book.emoji}
-        </span>
-        <h3 className="font-display text-lg leading-tight mb-1 truncate">{book.name}</h3>
-        <p className="text-xs text-muted-foreground mt-auto">
-          <span className="font-semibold text-primary">{book.chapters}</span> chapters
-        </p>
-      </div>
-
-      <div className="relative w-[42%] shrink-0 aspect-[3/4] rounded-md overflow-hidden bg-background/40 self-end">
+      <div className="relative w-full aspect-video rounded-t-xl overflow-hidden bg-background/40">
         {coverUrl ? (
           <img
             src={coverUrl}
@@ -164,7 +151,20 @@ function BookCard({
             loading="lazy"
             className="w-full h-full object-cover transition-transform group-hover:scale-105"
           />
-        ) : null}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-5xl transition-transform group-hover:scale-110" aria-hidden>
+              {book.emoji}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="p-3 text-center">
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block">
+          {testamentLabel} · {book.category}
+        </span>
+        <h3 className="font-display text-lg leading-tight truncate">{book.name}</h3>
       </div>
     </Link>
   );
