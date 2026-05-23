@@ -8,15 +8,21 @@ declare global {
 
 const RUMBLE_BOOTSTRAP = `!function(r,u,m,b,l,e){r._Rumble=b,r[b]||(r[b]=function(){(r[b]._=r[b]._||[]).push(arguments);if(r[b]._.length==1){l=u.createElement(m),e=u.getElementsByTagName(m)[0],l.async=1,l.src="https://rumble.com/embedJS/u4perti"+(arguments[1].video?'.'+arguments[1].video:'')+"/?url="+encodeURIComponent(location.href)+"&args="+encodeURIComponent(JSON.stringify([].slice.apply(arguments))),e.parentNode.insertBefore(l,e)}})}(window, document, "script", "Rumble");`;
 
-let bootstrapped = false;
-function ensureRumble() {
-  if (bootstrapped || typeof window === "undefined") return;
-  if (!window.Rumble) {
-    const s = document.createElement("script");
-    s.text = RUMBLE_BOOTSTRAP;
-    document.head.appendChild(s);
-  }
-  bootstrapped = true;
+function resetRumble() {
+  if (typeof window === "undefined") return;
+  try { delete (window as unknown as Record<string, unknown>).Rumble; } catch { /* ignore */ }
+  try { delete (window as unknown as Record<string, unknown>)._Rumble; } catch { /* ignore */ }
+  // Remove previously injected Rumble embedJS scripts (each is baked to a
+  // single videoId) so the next bootstrap can load a fresh per-video script.
+  const scripts = document.querySelectorAll('script[src*="rumble.com/embedJS"]');
+  scripts.forEach((s) => s.parentNode?.removeChild(s));
+}
+
+function bootstrapRumble() {
+  if (typeof window === "undefined") return;
+  const s = document.createElement("script");
+  s.text = RUMBLE_BOOTSTRAP;
+  document.head.appendChild(s);
 }
 
 export function RumblePlayer({
