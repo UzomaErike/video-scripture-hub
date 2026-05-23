@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { BIBLE_BOOKS, type BibleBook, getBook } from "@/lib/bible-books";
 import { getNltChapter } from "@/lib/nlt.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight } from "lucide-react";
+import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight, Home } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
