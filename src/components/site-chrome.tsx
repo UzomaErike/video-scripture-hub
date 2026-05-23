@@ -16,9 +16,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Audio Bible", href: "#", icon: Headphones },
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
-  { label: "Audio Hymns", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "mailto:videobible.watch@gmail.com", icon: Mail },
   { label: "About Us", to: "/about", icon: BookOpen },
@@ -82,9 +80,6 @@ export function SiteHeader() {
 
         {/* Desktop tabs */}
         <nav className="hidden lg:flex items-center gap-5 text-sm text-muted-foreground">
-          <Link to="/books" activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors">
-            Books
-          </Link>
           {navItems.map((item) =>
             item.dialogTrigger ? (
               <button
@@ -120,10 +115,6 @@ export function SiteHeader() {
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 flex flex-col gap-1">
-              <Link to="/books" className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors">
-                <BookOpen className="h-4 w-4" />
-                Books
-              </Link>
               {navItems.map((item) =>
                 item.dialogTrigger ? (
                   <button
