@@ -16,7 +16,6 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Audio Bible", href: "#", icon: Headphones },
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
