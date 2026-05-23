@@ -132,19 +132,6 @@ function ChapterPage() {
 
         <BibleText bookName={book.name} bookSlug={book.slug} chapter={chapter} />
 
-        {/* Nav */}
-        <div className="flex justify-between items-center mt-8">
-          {prev ? (
-            <Link to="/book/$book/$chapter" params={{ book: book.slug, chapter: String(prev) }} className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border hover:bg-accent transition">
-              <ChevronLeft className="h-4 w-4" /> Chapter {prev}
-            </Link>
-          ) : <div />}
-          {next ? (
-            <Link to="/book/$book/$chapter" params={{ book: book.slug, chapter: String(next) }} className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border hover:bg-accent transition">
-              Chapter {next} <ChevronRight className="h-4 w-4" />
-            </Link>
-          ) : <div />}
-        </div>
       </main>
       <SiteFooter />
     </div>
