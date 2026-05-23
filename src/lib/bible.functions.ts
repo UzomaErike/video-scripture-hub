@@ -139,9 +139,13 @@ export const getBibleChapter = createServerFn({ method: "GET" })
           : await fetchNlt(data.bookName, data.chapter);
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
+      // Fall back to the OTHER translation so the reader sees something.
       try {
-        verses = await fetchNlt(data.bookName, data.chapter);
-        usedFallback = data.translation !== "nlt";
+        verses =
+          data.translation === "kjv"
+            ? await fetchNlt(data.bookName, data.chapter)
+            : await fetchKjv(data.bookName, data.chapter);
+        usedFallback = true;
       } catch (fallbackErr) {
         console.error("Fallback fetch also failed:", fallbackErr);
         return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
