@@ -52,19 +52,13 @@ export const Route = createFileRoute("/summary/$book/$chapter")({
 
 function SummaryPage() {
   const { book, chapter } = Route.useLoaderData();
+  const fetchSummary = useServerFn(getOrGenerateSummary);
 
   const { data: summary, isLoading } = useQuery({
     queryKey: ["chapter-summary", book.slug, chapter],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("chapter_summaries")
-        .select("*")
-        .eq("book_slug", book.slug)
-        .eq("chapter", chapter)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchSummary({ data: { bookSlug: book.slug, bookName: book.name, chapter } }),
+    staleTime: 1000 * 60 * 60,
+    retry: 1,
   });
 
   const prev = chapter > 1 ? chapter - 1 : null;
