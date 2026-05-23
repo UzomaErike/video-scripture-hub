@@ -1,6 +1,6 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
