@@ -73,9 +73,6 @@ function VerseMeaningPage() {
           <div className="rounded-lg border border-border bg-card p-10 text-center">
             <Loader2 className="h-6 w-6 animate-spin mx-auto mb-3 text-primary" />
             <p className="font-display text-xl mb-1">Preparing the meaning…</p>
-            <p className="text-sm text-muted-foreground">
-              First-time lookups take a few seconds. We'll cache it for next time.
-            </p>
           </div>
         )}
 
