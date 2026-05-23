@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, BookOpen } from "lucide-react";
 import { getBibleChapter } from "@/lib/bible.functions";
+import { getVerseHighlightEnabled, subscribeVerseHighlight } from "@/lib/verse-highlight";
 import { cn } from "@/lib/utils";
 
 type Translation = "kjv" | "nlt";
@@ -82,29 +83,11 @@ function ChapterVerses({
 }) {
   const fetchChapter = useServerFn(getBibleChapter);
 
-  const [highlightEnabled, setHighlightEnabled] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem("verseHighlight");
-    return stored === null ? true : stored === "true";
-  });
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "verseHighlight") {
-        setHighlightEnabled(e.newValue === "true");
-      }
-    };
-    const onCustom = (e: Event) => {
-      const detail = (e as CustomEvent<boolean>).detail;
-      if (typeof detail === "boolean") setHighlightEnabled(detail);
-    };
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("verseHighlightChange", onCustom);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("verseHighlightChange", onCustom);
-    };
-  }, []);
+  const highlightEnabled = useSyncExternalStore(
+    subscribeVerseHighlight,
+    getVerseHighlightEnabled,
+    () => true,
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["bible", translation, bookSlug, chapter],
