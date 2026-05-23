@@ -87,7 +87,6 @@ function ChapterPage() {
           <h1 className="font-display text-4xl sm:text-5xl">
             {book.name} <span className="text-primary">{chapter}</span>
           </h1>
-          {video?.title && <p className="text-muted-foreground mt-2">{video.title}</p>}
         </div>
 
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
@@ -104,6 +103,16 @@ function ChapterPage() {
             </div>
           )}
         </div>
+
+        {video?.title && (() => {
+          const parts = video.title.split("||").map((p) => p.trim()).filter(Boolean);
+          const subtitle = parts.length > 1 ? parts.slice(1).join(" — ") : parts[0];
+          return (
+            <p className="text-center text-muted-foreground mt-4 text-base sm:text-lg">
+              {subtitle}
+            </p>
+          );
+        })()}
 
         {/* Nav */}
         <div className="flex justify-between items-center mt-8">
