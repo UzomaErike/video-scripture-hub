@@ -148,7 +148,6 @@ function ChapterPage() {
               onTime={setCurrentTime}
               onDuration={setDuration}
               onVideoDetected={setHasEmbeddedVideo}
-              onTime={setCurrentTime}
               className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full [&_video]:w-full [&_video]:h-full w-full h-full"
             />
           ) : (
