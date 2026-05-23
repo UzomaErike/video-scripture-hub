@@ -151,7 +151,7 @@ function BecomeMakerDialogContent() {
     { quote: "The Video Bible brings my imagination to life. It has me meditating on God like never before.", author: "William D." },
   ];
   return (
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background border-border">
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide bg-background border-border">
       <div className="flex flex-col items-center text-center pt-2">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
           <span className="text-3xl text-primary">✝</span>
