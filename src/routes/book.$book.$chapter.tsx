@@ -106,7 +106,7 @@ function ChapterPage() {
           )}
         </div>
 
-        <BibleText bookName={book.name} chapter={chapter} />
+        <BibleText bookName={book.name} bookSlug={book.slug} chapter={chapter} />
 
         {/* Nav */}
         <div className="flex justify-between items-center mt-8">

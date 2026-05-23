@@ -12,7 +12,7 @@ interface Verse {
   text: string;
 }
 
-export function BibleText({ bookName, chapter }: { bookName: string; chapter: number }) {
+export function BibleText({ bookName, bookSlug, chapter }: { bookName: string; bookSlug: string; chapter: number }) {
   const [tab, setTab] = useState<Translation>("kjv");
 
   return (
@@ -33,7 +33,7 @@ export function BibleText({ bookName, chapter }: { bookName: string; chapter: nu
       </div>
 
       <div className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
-        <ChapterVerses bookName={bookName} chapter={chapter} translation={tab} />
+        <ChapterVerses bookName={bookName} bookSlug={bookSlug} chapter={chapter} translation={tab} />
       </div>
 
       {tab === "nlt" && (
@@ -47,23 +47,24 @@ export function BibleText({ bookName, chapter }: { bookName: string; chapter: nu
 
 function ChapterVerses({
   bookName,
+  bookSlug,
   chapter,
   translation,
 }: {
   bookName: string;
+  bookSlug: string;
   chapter: number;
   translation: Translation;
 }) {
-  const nltFn = useServerFn(getNltChapter);
+  const fetchChapter = useServerFn(getBibleChapter);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["bible", translation, bookName, chapter],
+    queryKey: ["bible", translation, bookSlug, chapter],
     queryFn: async (): Promise<Verse[]> => {
-      if (translation === "kjv") return fetchKjv(bookName, chapter);
-      const res = await nltFn({ data: { bookName, chapter } });
+      const res = await fetchChapter({ data: { translation, bookName, bookSlug, chapter } });
       return res.verses;
     },
-    staleTime: 1000 * 60 * 60,
+    staleTime: Infinity,
     retry: 1,
   });
 
