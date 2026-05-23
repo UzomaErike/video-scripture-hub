@@ -77,14 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "A free video library covering every chapter of all 66 books of the Bible. Hosted on Rumble." },
       { name: "author", content: "VideoBible" },
       { property: "og:title", content: "VideoBible — Watch every chapter of the Bible" },
-      { property: "og:description", content: "A free video library covering every chapter of all 66 books of the Bible. Hosted on Rumble." },
+      { property: "og:description", content: "A free video library covering every chapter of all 66 books of the Bible." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "VideoBible — Watch every chapter of the Bible" },
-      { name: "twitter:description", content: "A free video library covering every chapter of all 66 books of the Bible. Hosted on Rumble." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fe5babf5-7088-4255-923c-2cdd91b5183b/id-preview-b74a9e79--12abaef2-4914-4daf-afbb-1c76b04f98fd.lovable.app-1778588231406.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fe5babf5-7088-4255-923c-2cdd91b5183b/id-preview-b74a9e79--12abaef2-4914-4daf-afbb-1c76b04f98fd.lovable.app-1778588231406.png" },
     ],
     links: [
       {
