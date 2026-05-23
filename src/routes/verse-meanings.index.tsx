@@ -1,100 +1,162 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { BIBLE_BOOKS, type BibleBook } from "@/lib/bible-books";
+import { BIBLE_BOOKS, type BibleBook, getBook } from "@/lib/bible-books";
 import { getNltChapter } from "@/lib/nlt.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { MessageSquareQuote, Search, ChevronDown } from "lucide-react";
+import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/verse-meanings/")({
   head: () => ({
     meta: [
       { title: "Verse Meanings — VideoBible" },
-      { name: "description", content: "Explore the meaning of every verse in the Bible, chapter by chapter." },
+      {
+        name: "description",
+        content: "Explore the meaning of every verse in the Bible, chapter by chapter.",
+      },
       { property: "og:title", content: "Verse Meanings — VideoBible" },
-      { property: "og:description", content: "Explore the meaning of every verse in the Bible, chapter by chapter." },
+      {
+        property: "og:description",
+        content: "Explore the meaning of every verse in the Bible, chapter by chapter.",
+      },
     ],
   }),
   component: VerseMeaningsIndex,
 });
 
 function VerseMeaningsIndex() {
-  const [tab, setTab] = useState<"old" | "new" | "all">("old");
-  const [search, setSearch] = useState("");
-  const [openChapter, setOpenChapter] = useState<{ book: string; chapter: number } | null>(null);
+  const navigate = useNavigate();
+  const [testament, setTestament] = useState<"old" | "new">("old");
+  const [bookSlug, setBookSlug] = useState<string>("");
+  const [chapter, setChapter] = useState<string>("");
+  const [verse, setVerse] = useState<string>("");
 
-  const searchLower = search.trim().toLowerCase();
-  const books = BIBLE_BOOKS.filter(
-    (b) =>
-      (tab === "all" || b.testament === tab) &&
-      (!searchLower ||
-        b.name.toLowerCase().includes(searchLower) ||
-        b.slug.toLowerCase().includes(searchLower))
-  );
+  const book = bookSlug ? getBook(bookSlug) : undefined;
+
+  const handleTestament = (t: "old" | "new") => {
+    setTestament(t);
+    setBookSlug("");
+    setChapter("");
+    setVerse("");
+  };
+
+  const handleBook = (slug: string) => {
+    setBookSlug(slug);
+    setChapter("");
+    setVerse("");
+  };
+
+  const handleChapter = (c: string) => {
+    setChapter(c);
+    setVerse("");
+  };
+
+  const canGo = bookSlug && chapter && verse;
+  const onGo = () => {
+    if (!canGo) return;
+    navigate({
+      to: "/verse-meanings/$book/$chapter/$verse",
+      params: { book: bookSlug, chapter, verse },
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 py-12 flex-1">
-        <nav className="text-sm text-muted-foreground mb-6 text-center">
-          <Link to="/" className="hover:text-primary transition">Home</Link>
-          <span className="mx-2">›</span>
-          <span className="text-foreground">Verse Meanings</span>
-        </nav>
-
+      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-12 flex-1">
         <div className="text-center mb-10">
           <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80 mb-3">
             <MessageSquareQuote className="h-3.5 w-3.5" /> Verse Meanings
           </p>
-          <h1 className="font-display text-5xl sm:text-6xl mb-3">Explore Verse by Verse</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Pick a book, open a chapter, and dive into the meaning of each verse.
+          <h1 className="font-display text-4xl sm:text-5xl mb-3">Explore Verse by Verse</h1>
+          <p className="text-muted-foreground">
+            Choose a book, chapter, and verse to discover its meaning.
           </p>
         </div>
 
-        <div className="flex justify-center gap-2 mb-6">
-          {(["old", "new", "all"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-md text-sm border transition ${
-                tab === t
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border hover:bg-accent"
-              }`}
-            >
-              {t === "old" ? "Old Testament" : t === "new" ? "New Testament" : "All Books"}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex justify-center mb-10">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search books"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-full border border-border bg-card pl-9 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition"
-            />
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+          {/* Testament toggle */}
+          <div className="flex justify-center gap-2 mb-6">
+            {(["old", "new"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => handleTestament(t)}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-sm border transition",
+                  testament === t
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border hover:bg-accent",
+                )}
+              >
+                {t === "old" ? "Old Testament" : "New Testament"}
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {books.map((book) => (
-            <BookCard
-              key={book.slug}
-              book={book}
-              openChapter={openChapter?.book === book.slug ? openChapter.chapter : null}
-              onToggle={(ch) =>
-                setOpenChapter((prev) =>
-                  prev?.book === book.slug && prev.chapter === ch ? null : { book: book.slug, chapter: ch }
-                )
-              }
-            />
-          ))}
+          <div className="space-y-4">
+            <FieldRow label="Book" step={1}>
+              <BookCombobox testament={testament} value={bookSlug} onChange={handleBook} />
+            </FieldRow>
+
+            <FieldRow label="Chapter" step={2}>
+              <Select
+                value={chapter}
+                onValueChange={handleChapter}
+                disabled={!book}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={book ? "Select a chapter" : "Select a book first"} />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {book &&
+                    Array.from({ length: book.chapters }, (_, i) => i + 1).map((c) => (
+                      <SelectItem key={c} value={String(c)}>
+                        Chapter {c}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </FieldRow>
+
+            <FieldRow label="Verse" step={3}>
+              <VerseSelect
+                book={book}
+                chapter={chapter ? parseInt(chapter, 10) : null}
+                value={verse}
+                onChange={setVerse}
+              />
+            </FieldRow>
+          </div>
+
+          <Button onClick={onGo} disabled={!canGo} className="w-full mt-8" size="lg">
+            View Meaning
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+
+          {canGo && book && (
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              {book.name} {chapter}:{verse}
+            </p>
+          )}
         </div>
       </main>
       <SiteFooter />
@@ -102,82 +164,137 @@ function VerseMeaningsIndex() {
   );
 }
 
-function BookCard({
-  book,
-  openChapter,
-  onToggle,
+function FieldRow({
+  label,
+  step,
+  children,
 }: {
-  book: BibleBook;
-  openChapter: number | null;
-  onToggle: (chapter: number) => void;
+  label: string;
+  step: number;
+  children: React.ReactNode;
 }) {
-  const chapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display text-xl">
-          <span className="mr-2">{book.emoji}</span>
-          {book.name}
-        </h2>
-        <span className="text-xs text-muted-foreground">{book.chapters} ch</span>
+    <div>
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
+          {step}
+        </span>
+        <label className="text-sm font-medium">{label}</label>
       </div>
-      <div className="grid grid-cols-8 gap-1.5">
-        {chapters.map((c) => {
-          const isOpen = openChapter === c;
-          return (
-            <button
-              key={c}
-              onClick={() => onToggle(c)}
-              className={`aspect-square rounded text-xs flex items-center justify-center border transition ${
-                isOpen
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border text-muted-foreground hover:bg-accent"
-              }`}
-            >
-              {c}
-            </button>
-          );
-        })}
-      </div>
-      {openChapter && (
-        <VersePicker book={book} chapter={openChapter} />
-      )}
+      {children}
     </div>
   );
 }
 
-function VersePicker({ book, chapter }: { book: BibleBook; chapter: number }) {
+function BookCombobox({
+  testament,
+  value,
+  onChange,
+}: {
+  testament: "old" | "new";
+  value: string;
+  onChange: (slug: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const books: BibleBook[] = BIBLE_BOOKS.filter((b) => b.testament === testament);
+  const selected = books.find((b) => b.slug === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {selected ? (
+            <span className="flex items-center gap-2">
+              <span>{selected.emoji}</span>
+              {selected.name}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">Search or select a book…</span>
+          )}
+          <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search books…" />
+          <CommandList>
+            <CommandEmpty>No book found.</CommandEmpty>
+            <CommandGroup>
+              {books.map((b) => (
+                <CommandItem
+                  key={b.slug}
+                  value={b.name}
+                  onSelect={() => {
+                    onChange(b.slug);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="mr-2">{b.emoji}</span>
+                  <span className="flex-1">{b.name}</span>
+                  <span className="text-xs text-muted-foreground mr-2">{b.chapters} ch</span>
+                  <Check
+                    className={cn(
+                      "h-4 w-4",
+                      value === b.slug ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function VerseSelect({
+  book,
+  chapter,
+  value,
+  onChange,
+}: {
+  book: BibleBook | undefined;
+  chapter: number | null;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   const fetchChapter = useServerFn(getNltChapter);
+  const enabled = !!book && !!chapter;
   const { data, isLoading, error } = useQuery({
-    queryKey: ["nlt-chapter-verses", book.slug, chapter],
-    queryFn: () => fetchChapter({ data: { bookName: book.name, chapter } }),
+    queryKey: ["nlt-chapter-verses", book?.slug, chapter],
+    queryFn: () => fetchChapter({ data: { bookName: book!.name, chapter: chapter! } }),
+    enabled,
     staleTime: 1000 * 60 * 60,
   });
 
+  const placeholder = !book
+    ? "Select a book first"
+    : !chapter
+    ? "Select a chapter first"
+    : isLoading
+    ? "Loading verses…"
+    : error
+    ? "Couldn't load verses"
+    : "Select a verse";
+
   return (
-    <div className="mt-4 pt-4 border-t border-border animate-in fade-in slide-in-from-top-1">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-        <ChevronDown className="h-3 w-3" />
-        {book.name} {chapter} — pick a verse
-      </div>
-      {isLoading ? (
-        <p className="text-xs text-muted-foreground">Loading verses…</p>
-      ) : error ? (
-        <p className="text-xs text-destructive">Couldn't load verses.</p>
-      ) : (
-        <div className="grid grid-cols-8 gap-1.5">
-          {(data?.verses ?? []).map((v) => (
-            <Link
-              key={v.verse}
-              to="/verse-meanings/$book/$chapter/$verse"
-              params={{ book: book.slug, chapter: String(chapter), verse: String(v.verse) }}
-              className="aspect-square rounded text-xs flex items-center justify-center border border-primary/40 text-primary hover:bg-primary/10 transition"
-            >
-              {v.verse}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <Select value={value} onValueChange={onChange} disabled={!enabled || isLoading || !!error}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-72">
+        {(data?.verses ?? []).map((v) => (
+          <SelectItem key={v.verse} value={String(v.verse)}>
+            Verse {v.verse}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
