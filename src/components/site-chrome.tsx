@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 type NavItem = {
   label: string;
