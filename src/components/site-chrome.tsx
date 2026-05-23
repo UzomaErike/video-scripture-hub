@@ -2,25 +2,25 @@
 
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Menu, Music3, Heart, Mail, Settings, Film, Info } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, Music3, Heart, Mail, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 type NavItem = {
   label: string;
-  icon: typeof Music3;
+  icon: typeof Headphones;
   to?: string;
   href?: string;
   dialogTrigger?: boolean;
 };
 
 const navItems: NavItem[] = [
+  { label: "Audio Bible", href: "#", icon: Headphones },
+  { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Christian Hymns", href: "#", icon: Music3 },
-  { label: "Christian Movies", href: "#", icon: Film },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "#", icon: Mail },
-  { label: "About Us", to: "/about", icon: Info },
   { label: "Settings", to: "/settings", icon: Settings },
 ];
 
