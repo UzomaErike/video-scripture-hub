@@ -45,7 +45,7 @@ export function BibleText({
         </Tabs>
       </div>
 
-      <div className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
+      <div data-verse-scroll className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
         <ChapterVerses
           bookName={bookName}
           bookSlug={bookSlug}
@@ -114,9 +114,13 @@ function ChapterVerses({
 
   const activeRef = useRef<HTMLParagraphElement | null>(null);
   useEffect(() => {
-    if (activeRef.current) {
-      activeRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+    const el = activeRef.current;
+    if (!el) return;
+    const scroller = el.closest("[data-verse-scroll]") as HTMLElement | null;
+    if (!scroller) return;
+    const elTop = el.offsetTop - scroller.offsetTop;
+    const target = elTop - scroller.clientHeight / 2 + el.clientHeight / 2;
+    scroller.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
   }, [activeIdx]);
 
   if (isLoading) {
