@@ -36,6 +36,9 @@ function SettingsPage() {
 
   useEffect(() => {
     localStorage.setItem("verseHighlight", String(highlightEnabled));
+    window.dispatchEvent(
+      new CustomEvent("verseHighlightChange", { detail: highlightEnabled }),
+    );
   }, [highlightEnabled]);
 
   return (
