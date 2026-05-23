@@ -40,8 +40,8 @@ export function BibleText({
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Translation)}>
           <TabsList>
-            <TabsTrigger value="kjv">KJV</TabsTrigger>
             <TabsTrigger value="nlt">NLT</TabsTrigger>
+            <TabsTrigger value="kjv">KJV</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
