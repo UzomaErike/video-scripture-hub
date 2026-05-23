@@ -1,9 +1,11 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmbedHtml } from "@/components/embed-html";
+import { RumblePlayer } from "@/components/rumble-player";
 import { BibleText } from "@/components/bible-text";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
@@ -65,6 +67,10 @@ function ChapterPage() {
   const prev = chapter > 1 ? chapter - 1 : null;
   const next = chapter < book.chapters ? chapter + 1 : null;
 
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const rumbleId = video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ?? null;
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -118,6 +124,14 @@ function ChapterPage() {
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
+          ) : rumbleId ? (
+            <RumblePlayer
+              key={`${book.slug}-${chapter}-${rumbleId}`}
+              videoId={rumbleId}
+              onTime={setCurrentTime}
+              onDuration={setDuration}
+              className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full w-full h-full"
+            />
           ) : video?.embed_html ? (
             <EmbedHtml html={video.embed_html} className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full" />
           ) : (
@@ -130,7 +144,13 @@ function ChapterPage() {
           )}
         </div>
 
-        <BibleText bookName={book.name} bookSlug={book.slug} chapter={chapter} />
+        <BibleText
+          bookName={book.name}
+          bookSlug={book.slug}
+          chapter={chapter}
+          currentTime={currentTime}
+          duration={duration}
+        />
 
       </main>
       <SiteFooter />
