@@ -16,9 +16,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Audio Bible", href: "#", icon: Headphones },
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
-  { label: "Audio Hymns", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "mailto:videobible.watch@gmail.com", icon: Mail },
   { label: "About Us", to: "/about", icon: BookOpen },
