@@ -8,6 +8,7 @@ import { EmbedHtml } from "@/components/embed-html";
 import { RumblePlayer } from "@/components/rumble-player";
 import { BibleText } from "@/components/bible-text";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { VideoErrorBoundary } from "@/components/video-error-boundary";
 
 export const Route = createFileRoute("/book/$book/$chapter")({
   loader: ({ params }) => {
@@ -152,33 +153,35 @@ function ChapterPage() {
         </div>
 
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
-          {isLoading ? (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
-          ) : rumbleId ? (
-            <RumblePlayer
-              key={`${book.slug}-${chapter}-${rumbleId}`}
-              videoId={rumbleId}
-              onTime={setCurrentTime}
-              onDuration={setDuration}
-              className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full w-full h-full"
-            />
-          ) : video?.embed_html ? (
-            <EmbedHtml
-              key={`${book.slug}-${chapter}`}
-              html={video.embed_html}
-              onTime={setCurrentTime}
-              onDuration={setDuration}
-              onVideoDetected={setHasEmbeddedVideo}
-              className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full [&_video]:w-full [&_video]:h-full w-full h-full"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-center p-8">
-              <div>
-                <p className="font-display text-2xl mb-2">No video yet</p>
-                <p className="text-muted-foreground text-sm">A video for {book.name} {chapter} hasn't been added yet. Check back soon.</p>
+          <VideoErrorBoundary resetKey={`${book.slug}-${chapter}`}>
+            {isLoading ? (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
+            ) : rumbleId ? (
+              <RumblePlayer
+                key={`${book.slug}-${chapter}-${rumbleId}`}
+                videoId={rumbleId}
+                onTime={setCurrentTime}
+                onDuration={setDuration}
+                className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full w-full h-full"
+              />
+            ) : video?.embed_html ? (
+              <EmbedHtml
+                key={`${book.slug}-${chapter}`}
+                html={video.embed_html}
+                onTime={setCurrentTime}
+                onDuration={setDuration}
+                onVideoDetected={setHasEmbeddedVideo}
+                className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full [&_video]:w-full [&_video]:h-full w-full h-full"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+                <div>
+                  <p className="font-display text-2xl mb-2">No video yet</p>
+                  <p className="text-muted-foreground text-sm">A video for {book.name} {chapter} hasn't been added yet. Check back soon.</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </VideoErrorBoundary>
         </div>
 
         <BibleText
