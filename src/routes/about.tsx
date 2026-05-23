@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 export const Route = createFileRoute("/about")({
@@ -16,7 +16,12 @@ function AboutPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto max-w-3xl w-full px-4 sm:px-6 py-16 flex-1">
-        <h1 className="font-display text-5xl mb-6">About VideoBible</h1>
+        <div className="mb-4 text-center">
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            ← Home
+          </Link>
+        </div>
+        <h1 className="font-display text-5xl mb-6 text-center">About VideoBible</h1>
         <div className="space-y-5 text-lg text-muted-foreground leading-relaxed">
           <p>
             VideoBible is a free, growing library of videos walking through every chapter of every book of
