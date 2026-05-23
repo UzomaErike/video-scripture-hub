@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Moon, Sun, Play } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  getVerseHighlightEnabled,
+  setVerseHighlightEnabled,
+  subscribeVerseHighlight,
+} from "@/lib/verse-highlight";
 
 function getInitialTheme() {
   if (typeof window === "undefined") return false;
   return localStorage.getItem("theme") === "light";
-}
-
-function getInitialHighlight() {
-  if (typeof window === "undefined") return true;
-  const stored = localStorage.getItem("verseHighlight");
-  return stored === null ? true : stored === "true";
 }
 
 export const Route = createFileRoute("/settings")({
@@ -21,15 +20,11 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const [isLight, setIsLight] = useState(getInitialTheme);
-  const [highlightEnabled, setHighlightEnabled] = useState(getInitialHighlight);
-
-  const handleHighlightToggle = (enabled: boolean) => {
-    setHighlightEnabled(enabled);
-    localStorage.setItem("verseHighlight", String(enabled));
-    window.dispatchEvent(
-      new CustomEvent("verseHighlightChange", { detail: enabled }),
-    );
-  };
+  const highlightEnabled = useSyncExternalStore(
+    subscribeVerseHighlight,
+    getVerseHighlightEnabled,
+    () => true,
+  );
 
   useEffect(() => {
     const root = document.documentElement;
@@ -98,7 +93,7 @@ function SettingsPage() {
           </div>
           <Switch
             checked={highlightEnabled}
-            onCheckedChange={handleHighlightToggle}
+            onCheckedChange={setVerseHighlightEnabled}
             aria-label="Toggle verse highlighting"
           />
         </CardContent>
