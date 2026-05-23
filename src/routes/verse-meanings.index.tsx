@@ -5,7 +5,7 @@ import { useState } from "react";
 import { BIBLE_BOOKS, type BibleBook, getBook } from "@/lib/bible-books";
 import { getNltChapter } from "@/lib/nlt.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight, Home } from "lucide-react";
+import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
