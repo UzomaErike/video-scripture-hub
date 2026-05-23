@@ -23,6 +23,14 @@ function SettingsPage() {
   const [isLight, setIsLight] = useState(getInitialTheme);
   const [highlightEnabled, setHighlightEnabled] = useState(getInitialHighlight);
 
+  const handleHighlightToggle = (enabled: boolean) => {
+    setHighlightEnabled(enabled);
+    localStorage.setItem("verseHighlight", String(enabled));
+    window.dispatchEvent(
+      new CustomEvent("verseHighlightChange", { detail: enabled }),
+    );
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     if (isLight) {
@@ -33,13 +41,6 @@ function SettingsPage() {
       localStorage.setItem("theme", "dark");
     }
   }, [isLight]);
-
-  useEffect(() => {
-    localStorage.setItem("verseHighlight", String(highlightEnabled));
-    window.dispatchEvent(
-      new CustomEvent("verseHighlightChange", { detail: highlightEnabled }),
-    );
-  }, [highlightEnabled]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -97,7 +98,7 @@ function SettingsPage() {
           </div>
           <Switch
             checked={highlightEnabled}
-            onCheckedChange={setHighlightEnabled}
+            onCheckedChange={handleHighlightToggle}
             aria-label="Toggle verse highlighting"
           />
         </CardContent>
