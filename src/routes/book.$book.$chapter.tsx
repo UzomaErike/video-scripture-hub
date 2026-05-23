@@ -4,6 +4,7 @@ import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmbedHtml } from "@/components/embed-html";
+import { BibleText } from "@/components/bible-text";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/book/$book/$chapter")({
@@ -104,6 +105,8 @@ function ChapterPage() {
             </div>
           )}
         </div>
+
+        <BibleText bookName={book.name} chapter={chapter} />
 
         {/* Nav */}
         <div className="flex justify-between items-center mt-8">
