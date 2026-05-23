@@ -145,13 +145,21 @@ async function generateSummary(
     return buildFallbackSummary(bookName, chapter, sourceText);
   }
 
+  const hasUsableSource = sourceText.trim().length >= 200;
+
   const system = `You are a Bible study writer. Given source material about a chapter, produce a fresh, well-organized summary in your own words (do not copy phrasing verbatim). Return ONLY JSON matching the requested schema.`;
 
-  const user = `Rephrase and structure a summary of ${bookName} chapter ${chapter} based on this source:
+  const user = `Write a structured summary of ${bookName} chapter ${chapter}.
+
+${hasUsableSource ? `Base it primarily on this source material, but rephrase everything in fresh language:
 
 ---
 ${sourceText.slice(0, 12000)}
 ---
+
+` : `The source page was not fully readable at runtime, so use faithful biblical knowledge of the chapter to create the summary instead of failing.
+
+`}
 
 Return JSON with this exact shape:
 {
@@ -229,9 +237,6 @@ export const getOrGenerateSummary = createServerFn({ method: "POST" })
     }
 
     const text = normalizeSourceText(extractVisibleText(html));
-    if (text.length < 200) {
-      throw new Error("Unable to extract enough source content for this chapter right now.");
-    }
 
     const generated = await generateSummary(data.bookName, data.chapter, text);
     const row = {
