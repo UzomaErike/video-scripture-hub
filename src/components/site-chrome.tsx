@@ -1,6 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info, Settings } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
@@ -19,7 +21,6 @@ const navItems: NavItem[] = [
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "#", icon: Mail },
-  { label: "About Us", href: "#", icon: Info },
   { label: "Settings", to: "/settings", icon: Settings },
 ];
 
@@ -33,12 +34,17 @@ const DonateDialogContext = React.createContext<{
 
 export function DonateDialogProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
   return (
     <DonateDialogContext.Provider value={{ open, setOpen }}>
       {children}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DonateDialogContent />
-      </Dialog>
+      {mounted && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DonateDialogContent />
+        </Dialog>
+      )}
     </DonateDialogContext.Provider>
   );
 }
