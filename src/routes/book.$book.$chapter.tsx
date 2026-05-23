@@ -74,7 +74,11 @@ function ChapterPage() {
   const navigate = useNavigate();
   const advancedRef = useRef(false);
   useEffect(() => {
+    // Reset playback tracking when chapter changes so stale values from the
+    // previous video don't immediately retrigger auto-advance.
     advancedRef.current = false;
+    setCurrentTime(0);
+    setDuration(0);
   }, [book.slug, chapter]);
   useEffect(() => {
     if (advancedRef.current) return;
