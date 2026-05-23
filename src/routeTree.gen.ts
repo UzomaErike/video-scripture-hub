@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ChristianMoviesRouteImport } from './routes/christian-movies'
+import { Route as ChristianHymnsRouteImport } from './routes/christian-hymns'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +36,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ChristianMoviesRoute = ChristianMoviesRouteImport.update({
   id: '/christian-movies',
   path: '/christian-movies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChristianHymnsRoute = ChristianHymnsRouteImport.update({
+  id: '/christian-hymns',
+  path: '/christian-hymns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-hymns': typeof ChristianHymnsRoute
   '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-hymns': typeof ChristianHymnsRoute
   '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-hymns': typeof ChristianHymnsRoute
   '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-hymns'
     | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-hymns'
     | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-hymns'
     | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BooksRoute: typeof BooksRoute
+  ChristianHymnsRoute: typeof ChristianHymnsRoute
   ChristianMoviesRoute: typeof ChristianMoviesRoute
   SettingsRoute: typeof SettingsRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/christian-movies'
       fullPath: '/christian-movies'
       preLoaderRoute: typeof ChristianMoviesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/christian-hymns': {
+      id: '/christian-hymns'
+      path: '/christian-hymns'
+      fullPath: '/christian-hymns'
+      preLoaderRoute: typeof ChristianHymnsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -280,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BooksRoute: BooksRoute,
+  ChristianHymnsRoute: ChristianHymnsRoute,
   ChristianMoviesRoute: ChristianMoviesRoute,
   SettingsRoute: SettingsRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,

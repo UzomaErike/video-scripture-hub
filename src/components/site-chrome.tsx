@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Settings, Clapperboard } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Settings, Clapperboard, Music } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
