@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useRouter, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, useNavigate, linkOptions } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { getBook } from "@/lib/bible-books";
@@ -67,6 +67,13 @@ function ChapterPage() {
   const prev = chapter > 1 ? chapter - 1 : null;
   const next = chapter < book.chapters ? chapter + 1 : null;
 
+  const nextChapterLink = next
+    ? linkOptions({
+        to: "/book/$book/$chapter",
+        params: { book: book.slug, chapter: String(next) },
+      })
+    : null;
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const rumbleId =
@@ -90,10 +97,10 @@ function ChapterPage() {
     if (!hasActiveVideo) return;
     if (duration <= 0 || currentTime <= 0) return;
     if (currentTime < duration - 0.75) return;
-    if (next == null) return;
+    if (!nextChapterLink) return;
     advancedRef.current = true;
-    navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
-  }, [currentTime, duration, next, book.slug, navigate, hasActiveVideo]);
+    navigate(nextChapterLink);
+  }, [currentTime, duration, hasActiveVideo, nextChapterLink, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -130,10 +137,9 @@ function ChapterPage() {
             <h1 className="font-display text-4xl sm:text-5xl text-center flex-1">
               {book.name} <span className="text-primary">{chapter}</span>
             </h1>
-            {next ? (
+            {nextChapterLink ? (
               <Link
-                to="/book/$book/$chapter"
-                params={{ book: book.slug, chapter: String(next) }}
+                {...nextChapterLink}
                 aria-label={`Chapter ${next}`}
                 className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-border hover:bg-accent transition shrink-0"
               >
