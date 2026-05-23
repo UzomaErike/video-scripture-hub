@@ -74,6 +74,8 @@ function AdminPage() {
             <VideoManager email={session.user.email ?? ""} />
             <div className="my-12 border-t border-border" />
             <HymnsManager />
+            <div className="my-12 border-t border-border" />
+            <MoviesManager />
           </>
         )}
       </main>
@@ -552,6 +554,352 @@ function HymnsManager() {
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+interface MovieRow {
+  id: string;
+  title: string;
+  image_url: string | null;
+  sort_order: number;
+}
+
+interface EpisodeRow {
+  id: string;
+  movie_id: string;
+  title: string;
+  embed_html: string;
+  sort_order: number;
+}
+
+function MoviesManager() {
+  const [movies, setMovies] = useState<MovieRow[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedMovieId, setSelectedMovieId] = useState<string | null>(null);
+
+  async function refresh() {
+    const { data } = await supabase
+      .from("movies")
+      .select("id,title,image_url,sort_order")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    setMovies((data as MovieRow[]) ?? []);
+  }
+
+  useEffect(() => { refresh(); }, []);
+
+  function reset() {
+    setEditingId(null);
+    setTitle("");
+    setImageUrl(null);
+    setSortOrder(0);
+  }
+
+  async function uploadImage(file: File) {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `movie-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("movie-images")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("movie-images").getPublicUrl(path);
+      setImageUrl(pub.publicUrl);
+      toast.success("Image uploaded");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    const t = title.trim();
+    if (!t) { toast.error("Enter a movie title"); return; }
+    setBusy(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("movies")
+          .update({ title: t, image_url: imageUrl, sort_order: sortOrder })
+          .eq("id", editingId);
+        if (error) throw error;
+        toast.success("Movie updated");
+      } else {
+        const { error } = await supabase.from("movies")
+          .insert({ title: t, image_url: imageUrl, sort_order: sortOrder });
+        if (error) throw error;
+        toast.success("Movie added");
+      }
+      reset();
+      refresh();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function edit(m: MovieRow) {
+    setEditingId(m.id);
+    setTitle(m.title);
+    setImageUrl(m.image_url);
+    setSortOrder(m.sort_order);
+  }
+
+  async function remove(m: MovieRow) {
+    if (!confirm(`Delete movie "${m.title}" and all its episodes?`)) return;
+    const { error } = await supabase.from("movies").delete().eq("id", m.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deleted");
+    if (editingId === m.id) reset();
+    if (selectedMovieId === m.id) setSelectedMovieId(null);
+    refresh();
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="font-display text-3xl">Christian Movies</h2>
+
+      <form onSubmit={save} className="space-y-5 rounded-lg border border-border bg-card p-6">
+        <div className="grid sm:grid-cols-[1fr_120px] gap-4">
+          <div>
+            <label className="block text-sm mb-1.5">Movie title</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200}
+              className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1.5">Sort order</label>
+            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+              className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm mb-1.5">Cover image</label>
+          <div className="flex items-start gap-4">
+            <div className="w-24 aspect-[3/4] rounded-md overflow-hidden bg-background border border-border shrink-0">
+              {imageUrl ? (
+                <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No image</div>
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploading}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) uploadImage(f);
+                  e.target.value = "";
+                }}
+                className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:px-4 file:py-2 file:font-medium file:cursor-pointer"
+              />
+              {uploading && <p className="text-xs text-muted-foreground">Uploading…</p>}
+              {imageUrl && (
+                <button type="button" onClick={() => setImageUrl(null)}
+                  className="text-sm text-destructive hover:underline">
+                  Remove image
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button disabled={busy} className="rounded-md bg-primary text-primary-foreground font-medium px-5 py-2.5 hover:opacity-90 disabled:opacity-50">
+            {busy ? "Saving…" : editingId ? "Update movie" : "Add movie"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={reset} className="rounded-md border border-border px-5 py-2.5 hover:bg-accent">
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      <div>
+        <h3 className="font-display text-xl mb-3">All movies ({movies.length})</h3>
+        {movies.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No movies yet.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+            {movies.map((m) => (
+              <li key={m.id} className="px-4 py-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 aspect-[3/4] rounded overflow-hidden bg-background border border-border shrink-0">
+                      {m.image_url && <img src={m.image_url} alt="" className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{m.title}</p>
+                      <p className="text-xs text-muted-foreground">Order: {m.sort_order}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => setSelectedMovieId(selectedMovieId === m.id ? null : m.id)}
+                      className="text-sm text-primary hover:underline">
+                      {selectedMovieId === m.id ? "Hide episodes" : "Episodes"}
+                    </button>
+                    <button onClick={() => edit(m)} className="text-sm text-primary hover:underline">Edit</button>
+                    <button onClick={() => remove(m)} className="text-sm text-destructive hover:underline">Delete</button>
+                  </div>
+                </div>
+                {selectedMovieId === m.id && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <EpisodesManager movieId={m.id} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EpisodesManager({ movieId }: { movieId: string }) {
+  const [episodes, setEpisodes] = useState<EpisodeRow[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [embedHtml, setEmbedHtml] = useState("");
+  const [sortOrder, setSortOrder] = useState(0);
+  const [busy, setBusy] = useState(false);
+
+  async function refresh() {
+    const { data } = await supabase
+      .from("movie_episodes")
+      .select("id,movie_id,title,embed_html,sort_order")
+      .eq("movie_id", movieId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    setEpisodes((data as EpisodeRow[]) ?? []);
+  }
+
+  useEffect(() => { refresh(); }, [movieId]);
+
+  function reset() {
+    setEditingId(null);
+    setTitle("");
+    setEmbedHtml("");
+    setSortOrder(0);
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    const t = title.trim();
+    const html = embedHtml.trim();
+    if (!t) { toast.error("Enter episode title"); return; }
+    if (!html) { toast.error("Paste the Rumble embed code"); return; }
+    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(html);
+    if (looksLikePageUrl) {
+      toast.error("That's a Rumble page URL, not an embed. Use Share → Embed.", { duration: 9000 });
+      return;
+    }
+    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(html);
+    const hasScript = /<script[\s\S]*<\/script>/i.test(html);
+    if (!hasIframe && !hasScript) {
+      toast.error("Paste the full <iframe> or <script> embed snippet.");
+      return;
+    }
+    setBusy(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("movie_episodes")
+          .update({ title: t, embed_html: html, sort_order: sortOrder })
+          .eq("id", editingId);
+        if (error) throw error;
+        toast.success("Episode updated");
+      } else {
+        const { error } = await supabase.from("movie_episodes")
+          .insert({ movie_id: movieId, title: t, embed_html: html, sort_order: sortOrder });
+        if (error) throw error;
+        toast.success("Episode added");
+      }
+      reset();
+      refresh();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function edit(ep: EpisodeRow) {
+    setEditingId(ep.id);
+    setTitle(ep.title);
+    setEmbedHtml(ep.embed_html);
+    setSortOrder(ep.sort_order);
+  }
+
+  async function remove(ep: EpisodeRow) {
+    if (!confirm(`Delete episode "${ep.title}"?`)) return;
+    const { error } = await supabase.from("movie_episodes").delete().eq("id", ep.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deleted");
+    if (editingId === ep.id) reset();
+    refresh();
+  }
+
+  return (
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Episodes</h4>
+      <form onSubmit={save} className="space-y-3 rounded-md border border-border bg-background p-4">
+        <div className="grid sm:grid-cols-[1fr_100px] gap-3">
+          <div>
+            <label className="block text-xs mb-1">Episode title</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200}
+              className="w-full rounded-md bg-card border border-border px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Order</label>
+            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+              className="w-full rounded-md bg-card border border-border px-3 py-2 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs mb-1">Rumble embed</label>
+          <textarea value={embedHtml} onChange={(e) => setEmbedHtml(e.target.value)} rows={3}
+            placeholder='<iframe class="rumble" src="https://rumble.com/embed/..." ...></iframe>'
+            className="w-full rounded-md bg-card border border-border px-3 py-2 font-mono text-xs" />
+        </div>
+        <div className="flex gap-2">
+          <button disabled={busy} className="rounded-md bg-primary text-primary-foreground text-sm font-medium px-4 py-2 hover:opacity-90 disabled:opacity-50">
+            {busy ? "Saving…" : editingId ? "Update episode" : "Add episode"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={reset} className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent">
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      {episodes.length === 0 ? (
+        <p className="text-xs text-muted-foreground">No episodes yet.</p>
+      ) : (
+        <ul className="divide-y divide-border rounded-md border border-border bg-background">
+          {episodes.map((ep) => (
+            <li key={ep.id} className="flex items-center justify-between gap-3 px-3 py-2">
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{ep.title}</p>
+                <p className="text-xs text-muted-foreground">Order: {ep.sort_order}</p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button onClick={() => edit(ep)} className="text-xs text-primary hover:underline">Edit</button>
+                <button onClick={() => remove(ep)} className="text-xs text-destructive hover:underline">Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
