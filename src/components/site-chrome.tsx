@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } fr
 
 type NavItem = {
   label: string;
-  icon: typeof Headphones;
+  icon: typeof Music3;
   to?: string;
   href?: string;
   dialogTrigger?: boolean;
