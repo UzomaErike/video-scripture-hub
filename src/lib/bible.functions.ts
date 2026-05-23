@@ -129,6 +129,7 @@ export const getBibleChapter = createServerFn({ method: "GET" })
 
     // 2. Fetch from upstream (with fallback for KJV rate limiting)
     let verses: Verse[];
+    let usedFallback = false;
     try {
       verses =
         data.translation === "kjv"
@@ -136,17 +137,17 @@ export const getBibleChapter = createServerFn({ method: "GET" })
           : await fetchNlt(data.bookName, data.chapter);
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
-      // Fallback: use AI to generate the requested translation
       try {
         verses = await fetchNlt(data.bookName, data.chapter);
+        usedFallback = data.translation !== "nlt";
       } catch (fallbackErr) {
         console.error("Fallback fetch also failed:", fallbackErr);
         return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
       }
     }
 
-    // 3. Store (best-effort; ignore failures)
-    if (verses.length > 0) {
+    // 3. Store (best-effort; ignore failures). Skip cache if we served a different translation as fallback.
+    if (verses.length > 0 && !usedFallback) {
       await supabaseAdmin
         .from("bible_chapters")
         .upsert(
