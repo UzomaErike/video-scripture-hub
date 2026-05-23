@@ -5,6 +5,7 @@ import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmbedHtml } from "@/components/embed-html";
+import { RumblePlayer } from "@/components/rumble-player";
 import { BibleText } from "@/components/bible-text";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
@@ -68,7 +69,13 @@ function ChapterPage() {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const rumbleId =
+    video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ??
+    video?.embed_html?.match(/id="rumble_(v[a-z0-9]+)"/i)?.[1] ??
+    video?.embed_html?.match(/embedJS\/[a-z0-9]+\.(v[a-z0-9]+)\//i)?.[1] ??
+    null;
   const [hasEmbeddedVideo, setHasEmbeddedVideo] = useState(false);
+  const hasActiveVideo = Boolean(rumbleId) || hasEmbeddedVideo;
 
   const navigate = useNavigate();
   const advancedRef = useRef(false);
@@ -80,13 +87,13 @@ function ChapterPage() {
   }, [book.slug, chapter, video?.embed_html]);
   useEffect(() => {
     if (advancedRef.current) return;
-    if (!hasEmbeddedVideo) return;
+    if (!hasActiveVideo) return;
     if (duration <= 0 || currentTime <= 0) return;
     if (currentTime < duration - 0.75) return;
     if (next == null) return;
     advancedRef.current = true;
     navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
-  }, [currentTime, duration, next, book.slug, navigate, hasEmbeddedVideo]);
+  }, [currentTime, duration, next, book.slug, navigate, hasActiveVideo]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -141,6 +148,14 @@ function ChapterPage() {
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
+          ) : rumbleId ? (
+            <RumblePlayer
+              key={`${book.slug}-${chapter}-${rumbleId}`}
+              videoId={rumbleId}
+              onTime={setCurrentTime}
+              onDuration={setDuration}
+              className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full w-full h-full"
+            />
           ) : video?.embed_html ? (
             <EmbedHtml
               key={`${book.slug}-${chapter}`}
