@@ -20,7 +20,8 @@ const navItems: NavItem[] = [
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Audio Hymns", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
-  { label: "Contact Us", href: "#", icon: Mail },
+  { label: "Contact Us", href: "mailto:videobible.watch@gmail.com", icon: Mail },
+  { label: "About Us", to: "/about", icon: BookOpen },
   { label: "Settings", to: "/settings", icon: Settings },
 ];
 
