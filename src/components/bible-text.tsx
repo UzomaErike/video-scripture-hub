@@ -82,6 +82,22 @@ function ChapterVerses({
 }) {
   const fetchChapter = useServerFn(getBibleChapter);
 
+  const [highlightEnabled, setHighlightEnabled] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("verseHighlight");
+    return stored === null ? true : stored === "true";
+  });
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "verseHighlight") {
+        setHighlightEnabled(e.newValue === "true");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["bible", translation, bookSlug, chapter],
     queryFn: async (): Promise<Verse[]> => {
@@ -107,20 +123,22 @@ function ChapterVerses({
   }, [data, duration]);
 
   const activeIdx = useMemo(() => {
+    if (!highlightEnabled) return -1;
     if (ranges.length === 0) return -1;
     if (currentTime <= 0) return -1;
     return ranges.findIndex((r) => currentTime >= r.start && currentTime < r.end);
-  }, [ranges, currentTime]);
+  }, [ranges, currentTime, highlightEnabled]);
 
   const activeRef = useRef<HTMLParagraphElement | null>(null);
   useEffect(() => {
+    if (!highlightEnabled) return;
     const el = activeRef.current;
     if (!el) return;
     const scroller = el.closest("[data-verse-scroll]") as HTMLElement | null;
     if (!scroller) return;
     const target = el.offsetTop - scroller.offsetTop;
     scroller.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
-  }, [activeIdx]);
+  }, [activeIdx, highlightEnabled]);
 
   if (isLoading) {
     return (
@@ -166,4 +184,5 @@ function ChapterVerses({
     </div>
   );
 }
+
 
