@@ -29,6 +29,11 @@ export function BibleText({
 }) {
   const [tab, setTab] = useState<Translation>("nlt");
 
+  // Reset to NLT whenever the chapter changes (component may stay mounted across navigation)
+  useEffect(() => {
+    setTab("nlt");
+  }, [bookSlug, chapter]);
+
   return (
     <div className="mt-8 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden">
       <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-border bg-card">
