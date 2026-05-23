@@ -41,19 +41,53 @@ export function RumblePlayer({
     window.Rumble("play", {
       video: videoId,
       div: divId,
-      api: (player: { getCurrentTime?: () => number; getDuration?: () => number }) => {
-        const tick = () => {
+      api: (player: {
+        getCurrentTime?: () => number;
+        getDuration?: () => number;
+        on?: (event: string, cb: (...args: unknown[]) => void) => void;
+      }) => {
+        const readDuration = () => {
+          try {
+            const d = player.getDuration?.();
+            if (typeof d === "number" && d > 0) onDuration?.(d);
+          } catch { /* ignore */ }
+        };
+        const readTime = () => {
           try {
             const t = player.getCurrentTime?.();
             if (typeof t === "number" && !Number.isNaN(t)) onTime?.(t);
-            const d = player.getDuration?.();
-            if (typeof d === "number" && d > 0) onDuration?.(d);
-          } catch {
-            /* ignore */
-          }
+          } catch { /* ignore */ }
         };
-        tick();
-        intervalRef.current = window.setInterval(tick, 250);
+
+        // Subscribe to Rumble events when available.
+        try {
+          player.on?.("playing", () => { readDuration(); readTime(); });
+          player.on?.("play", () => { readDuration(); readTime(); });
+          player.on?.("time", (...args: unknown[]) => {
+            const arg = args[0] as { currentTime?: number } | number | undefined;
+            if (typeof arg === "number") onTime?.(arg);
+            else if (arg && typeof (arg as { currentTime?: number }).currentTime === "number") {
+              onTime?.((arg as { currentTime: number }).currentTime);
+            } else readTime();
+            readDuration();
+          });
+          player.on?.("finish", () => {
+            const d = player.getDuration?.();
+            if (typeof d === "number" && d > 0) { onDuration?.(d); onTime?.(d); }
+          });
+          player.on?.("end", () => {
+            const d = player.getDuration?.();
+            if (typeof d === "number" && d > 0) { onDuration?.(d); onTime?.(d); }
+          });
+        } catch { /* ignore */ }
+
+        // Fallback polling as a safety net.
+        readDuration();
+        readTime();
+        intervalRef.current = window.setInterval(() => {
+          readDuration();
+          readTime();
+        }, 500);
       },
     });
 
