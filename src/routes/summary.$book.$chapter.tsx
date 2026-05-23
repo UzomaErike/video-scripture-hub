@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getBook } from "@/lib/bible-books";
-import { supabase } from "@/integrations/supabase/client";
+import { getOrGenerateSummary } from "@/lib/summary.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ChevronLeft, ChevronRight, List, PlayCircle, ArrowLeft } from "lucide-react";
 
@@ -51,19 +52,13 @@ export const Route = createFileRoute("/summary/$book/$chapter")({
 
 function SummaryPage() {
   const { book, chapter } = Route.useLoaderData();
+  const fetchSummary = useServerFn(getOrGenerateSummary);
 
   const { data: summary, isLoading } = useQuery({
     queryKey: ["chapter-summary", book.slug, chapter],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("chapter_summaries")
-        .select("*")
-        .eq("book_slug", book.slug)
-        .eq("chapter", chapter)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchSummary({ data: { bookSlug: book.slug, bookName: book.name, chapter } }),
+    staleTime: 1000 * 60 * 60,
+    retry: 1,
   });
 
   const prev = chapter > 1 ? chapter - 1 : null;
@@ -111,7 +106,7 @@ function SummaryPage() {
         </header>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Loading…</p>
+          <p className="text-muted-foreground">Preparing summary… this may take a moment the first time.</p>
         ) : !summary ? (
           <div className="rounded-lg border border-border bg-card p-8 text-center">
             <p className="font-display text-2xl mb-2">Summary coming soon</p>
@@ -174,7 +169,7 @@ function SummaryPage() {
               <section>
                 <h2 className="font-display text-2xl mb-3">Themes</h2>
                 <div className="flex flex-wrap gap-2">
-                  {summary.themes.map((t) => (
+                  {summary.themes.map((t: string) => (
                     <span key={t} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/30">
                       {t}
                     </span>
