@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, BookOpen } from "lucide-react";
 import { getBibleChapter } from "@/lib/bible.functions";
+import { cn } from "@/lib/utils";
 
 type Translation = "kjv" | "nlt";
 
@@ -12,7 +13,19 @@ interface Verse {
   text: string;
 }
 
-export function BibleText({ bookName, bookSlug, chapter }: { bookName: string; bookSlug: string; chapter: number }) {
+export function BibleText({
+  bookName,
+  bookSlug,
+  chapter,
+  currentTime = 0,
+  duration = 0,
+}: {
+  bookName: string;
+  bookSlug: string;
+  chapter: number;
+  currentTime?: number;
+  duration?: number;
+}) {
   const [tab, setTab] = useState<Translation>("kjv");
 
   return (
@@ -33,7 +46,14 @@ export function BibleText({ bookName, bookSlug, chapter }: { bookName: string; b
       </div>
 
       <div className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
-        <ChapterVerses bookName={bookName} bookSlug={bookSlug} chapter={chapter} translation={tab} />
+        <ChapterVerses
+          bookName={bookName}
+          bookSlug={bookSlug}
+          chapter={chapter}
+          translation={tab}
+          currentTime={currentTime}
+          duration={duration}
+        />
       </div>
 
       {tab === "nlt" && (
@@ -50,11 +70,15 @@ function ChapterVerses({
   bookSlug,
   chapter,
   translation,
+  currentTime,
+  duration,
 }: {
   bookName: string;
   bookSlug: string;
   chapter: number;
   translation: Translation;
+  currentTime: number;
+  duration: number;
 }) {
   const fetchChapter = useServerFn(getBibleChapter);
 
@@ -67,6 +91,33 @@ function ChapterVerses({
     staleTime: Infinity,
     retry: 1,
   });
+
+  // Estimate per-verse time ranges, weighted by text length.
+  const ranges = useMemo(() => {
+    if (!data || data.length === 0 || duration <= 0) return [];
+    const lens = data.map((v) => Math.max(1, v.text.length));
+    const total = lens.reduce((a, b) => a + b, 0);
+    let acc = 0;
+    return data.map((_, i) => {
+      const start = (acc / total) * duration;
+      acc += lens[i];
+      const end = (acc / total) * duration;
+      return { start, end };
+    });
+  }, [data, duration]);
+
+  const activeIdx = useMemo(() => {
+    if (ranges.length === 0) return -1;
+    if (currentTime <= 0) return -1;
+    return ranges.findIndex((r) => currentTime >= r.start && currentTime < r.end);
+  }, [ranges, currentTime]);
+
+  const activeRef = useRef<HTMLParagraphElement | null>(null);
+  useEffect(() => {
+    if (activeRef.current) {
+      activeRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [activeIdx]);
 
   if (isLoading) {
     return (
@@ -86,14 +137,29 @@ function ChapterVerses({
 
   return (
     <div className="font-display text-lg leading-relaxed text-foreground/95 space-y-2">
-      {data.map((v) => (
-        <p key={v.verse} className="flex gap-2">
-          <sup className="text-primary font-sans font-semibold text-xs mt-1.5 shrink-0">
-            {v.verse}
-          </sup>
-          <span>{v.text}</span>
-        </p>
-      ))}
+      {data.map((v, i) => {
+        const isActive = i === activeIdx;
+        return (
+          <p
+            key={v.verse}
+            ref={isActive ? activeRef : null}
+            className={cn(
+              "flex gap-2 rounded-md px-2 py-1 -mx-2 transition-colors duration-300",
+              isActive && "bg-primary/15 ring-1 ring-primary/40"
+            )}
+          >
+            <sup
+              className={cn(
+                "font-sans font-semibold text-xs mt-1.5 shrink-0",
+                isActive ? "text-primary" : "text-primary/80"
+              )}
+            >
+              {v.verse}
+            </sup>
+            <span>{v.text}</span>
+          </p>
+        );
+      })}
     </div>
   );
 }
