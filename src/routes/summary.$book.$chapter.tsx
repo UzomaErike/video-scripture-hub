@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getBook } from "@/lib/bible-books";
-import { supabase } from "@/integrations/supabase/client";
+import { getOrGenerateSummary } from "@/lib/summary.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ChevronLeft, ChevronRight, List, PlayCircle, ArrowLeft } from "lucide-react";
 
