@@ -105,9 +105,11 @@ async function fetchNlt(bookName: string, chapter: number): Promise<Verse[]> {
   if (!args) throw new Error("AI did not return chapter verses");
 
   const parsed = JSON.parse(args) as { verses: Verse[] };
-  return parsed.verses
+  const verses = parsed.verses
     .filter((v) => v && typeof v.verse === "number" && typeof v.text === "string")
     .sort((a, b) => a.verse - b.verse);
+  if (verses.length === 0) throw new Error("NLT AI returned no verses");
+  return verses;
 }
 
 
