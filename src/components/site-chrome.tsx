@@ -104,31 +104,31 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 flex flex-col items-center gap-6">
         <a
           href="#"
-          className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition hover:opacity-90 bg-primary text-primary-foreground"
+          className="group relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 hover:scale-105 active:scale-95 active:translate-y-0 bg-primary text-primary-foreground"
         >
-          <span aria-hidden>🙏</span>
+          <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
           Become a Video Bible Maker
         </a>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a href="#" aria-label="Download on the App Store" className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-white border border-white/10 hover:bg-black/80 transition">
-            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+          <a href="#" aria-label="Download on the App Store" className="group inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
+            <svg viewBox="0 0 24 24" className="h-7 w-7 transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" fill="currentColor" aria-hidden>
               <path d="M16.365 1.43c0 1.14-.43 2.23-1.21 3.02-.84.86-2.22 1.52-3.34 1.43-.14-1.12.41-2.29 1.18-3.05.85-.87 2.3-1.51 3.37-1.4zM20.5 17.27c-.56 1.29-.83 1.86-1.55 3-1.01 1.6-2.44 3.6-4.21 3.62-1.57.02-1.97-1.02-4.1-1.01-2.13.01-2.58 1.03-4.15 1.01-1.77-.02-3.12-1.82-4.13-3.42C-.36 16.95-.65 11.61 1.99 8.74c1.41-1.53 3.63-2.5 5.66-2.5 2.07 0 3.38 1.13 5.09 1.13 1.66 0 2.67-1.13 5.06-1.13 1.81 0 3.73.99 5.1 2.69-4.48 2.45-3.75 8.85-2.4 8.34z"/>
             </svg>
             <span className="flex flex-col leading-tight text-left">
-              <span className="text-[10px] opacity-80">Download on the</span>
-              <span className="text-base font-semibold -mt-0.5">App Store</span>
+              <span className="text-[10px] opacity-80 transition-opacity duration-300 group-hover:opacity-100">Download on the</span>
+              <span className="text-base font-semibold -mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">App Store</span>
             </span>
           </a>
-          <a href="#" aria-label="Get it on Google Play" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-black border border-black/10 hover:bg-white/90 transition">
-            <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+          <a href="#" aria-label="Get it on Google Play" className="group inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-black border border-black/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
+            <svg viewBox="0 0 24 24" className="h-7 w-7 transition-transform duration-300 group-hover:rotate-[5deg] group-hover:scale-110" aria-hidden>
               <path fill="#34A853" d="M3.6 20.5l10.2-10.2 2.8 2.8L6.4 23.3a1.7 1.7 0 0 1-2.8-1.2v-1.6z"/>
               <path fill="#FBBC04" d="M19.9 10.6l-3.4-1.9-3 3 3 3 3.4-1.9a1.7 1.7 0 0 0 0-2.2z"/>
               <path fill="#4285F4" d="M3.6 3.5v17l10.2-10.2L3.6 3.5z"/>
               <path fill="#EA4335" d="M6.4.7l10.2 5.9-2.8 2.8L3.6 .2 6.4.7z"/>
             </svg>
             <span className="flex flex-col leading-tight text-left">
-              <span className="text-[10px] opacity-70">GET IT ON</span>
-              <span className="text-base font-semibold -mt-0.5">Google Play</span>
+              <span className="text-[10px] opacity-70 transition-opacity duration-300 group-hover:opacity-100">GET IT ON</span>
+              <span className="text-base font-semibold -mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">Google Play</span>
             </span>
           </a>
         </div>
