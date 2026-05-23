@@ -131,6 +131,48 @@ export type Database = {
         }
         Relationships: []
       }
+      verse_meanings: {
+        Row: {
+          application: string | null
+          book_slug: string
+          chapter: number
+          created_at: string
+          id: string
+          intro: string | null
+          sections: Json
+          themes: string[]
+          title: string | null
+          updated_at: string
+          verse: number
+        }
+        Insert: {
+          application?: string | null
+          book_slug: string
+          chapter: number
+          created_at?: string
+          id?: string
+          intro?: string | null
+          sections?: Json
+          themes?: string[]
+          title?: string | null
+          updated_at?: string
+          verse: number
+        }
+        Update: {
+          application?: string | null
+          book_slug?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          intro?: string | null
+          sections?: Json
+          themes?: string[]
+          title?: string | null
+          updated_at?: string
+          verse?: number
+        }
+        Relationships: []
+      }
       videos: {
         Row: {
           book_slug: string
