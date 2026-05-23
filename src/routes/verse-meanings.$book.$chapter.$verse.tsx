@@ -1,7 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getBook } from "@/lib/bible-books";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { ArrowLeft } from "lucide-react";
+import { getOrGenerateVerseMeaning } from "@/lib/verse-meaning.functions";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/verse-meanings/$book/$chapter/$verse")({
   loader: ({ params }) => {
@@ -34,25 +37,96 @@ export const Route = createFileRoute("/verse-meanings/$book/$chapter/$verse")({
 
 function VerseMeaningPage() {
   const { book, chapter, verse } = Route.useLoaderData();
+  const fetchMeaning = useServerFn(getOrGenerateVerseMeaning);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["verse-meaning", book.slug, chapter, verse],
+    queryFn: () =>
+      fetchMeaning({
+        data: { bookSlug: book.slug, bookName: book.name, chapter, verse },
+      }),
+    staleTime: 1000 * 60 * 60 * 24,
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10 flex-1">
-        <Link to="/verse-meanings" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6">
+        <Link
+          to="/verse-meanings"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6"
+        >
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
+
         <header className="mb-8">
-          <h1 className="font-display text-4xl sm:text-5xl mb-2">
-            {book.name} {chapter}:{verse}
+          <p className="text-xs uppercase tracking-[0.25em] text-primary/80 mb-2">Verse Meaning</p>
+          <h1 className="font-display text-4xl sm:text-5xl mb-1">
+            {data?.title || `${book.name} ${chapter}:${verse}`}
           </h1>
-          <p className="text-muted-foreground">Verse meaning</p>
-        </header>
-        <div className="rounded-lg border border-border bg-card p-8 text-center">
-          <p className="font-display text-2xl mb-2">Coming soon</p>
-          <p className="text-muted-foreground text-sm">
-            An in-depth meaning for this verse hasn't been added yet.
+          <p className="text-muted-foreground">
+            {book.name} {chapter}:{verse}
           </p>
-        </div>
+        </header>
+
+        {isLoading && (
+          <div className="rounded-lg border border-border bg-card p-10 text-center">
+            <Loader2 className="h-6 w-6 animate-spin mx-auto mb-3 text-primary" />
+            <p className="font-display text-xl mb-1">Preparing the meaning…</p>
+            <p className="text-sm text-muted-foreground">
+              First-time lookups take a few seconds. We'll cache it for next time.
+            </p>
+          </div>
+        )}
+
+        {error && !isLoading && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
+            <p className="font-medium mb-1">Couldn't load this meaning.</p>
+            <p className="text-sm text-muted-foreground">Please try again in a moment.</p>
+          </div>
+        )}
+
+        {data && (
+          <article className="space-y-8">
+            {data.intro && (
+              <p className="text-lg leading-relaxed text-foreground/90">{data.intro}</p>
+            )}
+
+            {data.sections?.map((s, i) => (
+              <section key={i}>
+                <h2 className="font-display text-2xl mb-2">{s.heading}</h2>
+                <p className="leading-relaxed text-foreground/85 whitespace-pre-line">{s.body}</p>
+              </section>
+            ))}
+
+            {data.application && (
+              <section className="rounded-lg border border-border bg-card p-6">
+                <h2 className="font-display text-2xl mb-2">Application</h2>
+                <p className="leading-relaxed text-foreground/85 whitespace-pre-line">
+                  {data.application}
+                </p>
+              </section>
+            )}
+
+            {data.themes?.length > 0 && (
+              <section>
+                <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3">
+                  Themes
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.themes.map((t) => (
+                    <span
+                      key={t}
+                      className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+          </article>
+        )}
       </main>
       <SiteFooter />
     </div>
