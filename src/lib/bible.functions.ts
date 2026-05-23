@@ -17,11 +17,20 @@ interface Verse {
 
 async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
   const ref = `${bookName} ${chapter}`.toLowerCase().replace(/\s+/g, "+");
-  const res = await fetch(`https://bible-api.com/${ref}?translation=kjv`);
-  if (!res.ok) throw new Error(`KJV API error: ${res.status}`);
-  const data = (await res.json()) as { error?: string; verses?: Array<{ verse: number; text: string }> };
-  if (data.error) throw new Error(data.error);
-  return (data.verses ?? []).map((v) => ({ verse: v.verse, text: v.text.trim() }));
+  const url = `https://bible-api.com/${ref}?translation=kjv`;
+  // Retry on 429 with exponential backoff
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(url);
+    if (res.status === 429) {
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+      continue;
+    }
+    if (!res.ok) throw new Error(`KJV API error: ${res.status}`);
+    const data = (await res.json()) as { error?: string; verses?: Array<{ verse: number; text: string }> };
+    if (data.error) throw new Error(data.error);
+    return (data.verses ?? []).map((v) => ({ verse: v.verse, text: v.text.trim() }));
+  }
+  throw new Error("KJV API rate limited (429)");
 }
 
 async function fetchNlt(bookName: string, chapter: number): Promise<Verse[]> {
@@ -118,14 +127,27 @@ export const getBibleChapter = createServerFn({ method: "GET" })
       return { verses: cached.verses as unknown as Verse[], cached: true };
     }
 
-    // 2. Fetch from upstream
-    const verses =
-      data.translation === "kjv"
-        ? await fetchKjv(data.bookName, data.chapter)
-        : await fetchNlt(data.bookName, data.chapter);
+    // 2. Fetch from upstream (with fallback for KJV rate limiting)
+    let verses: Verse[];
+    let usedFallback = false;
+    try {
+      verses =
+        data.translation === "kjv"
+          ? await fetchKjv(data.bookName, data.chapter)
+          : await fetchNlt(data.bookName, data.chapter);
+    } catch (err) {
+      console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
+      try {
+        verses = await fetchNlt(data.bookName, data.chapter);
+        usedFallback = data.translation !== "nlt";
+      } catch (fallbackErr) {
+        console.error("Fallback fetch also failed:", fallbackErr);
+        return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
+      }
+    }
 
-    // 3. Store (best-effort; ignore failures)
-    if (verses.length > 0) {
+    // 3. Store (best-effort; ignore failures). Skip cache if we served a different translation as fallback.
+    if (verses.length > 0 && !usedFallback) {
       await supabaseAdmin
         .from("bible_chapters")
         .upsert(
