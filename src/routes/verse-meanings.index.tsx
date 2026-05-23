@@ -5,7 +5,7 @@ import { useState } from "react";
 import { BIBLE_BOOKS, type BibleBook, getBook } from "@/lib/bible-books";
 import { getNltChapter } from "@/lib/nlt.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight, Home } from "lucide-react";
+import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
@@ -83,12 +83,11 @@ function VerseMeaningsIndex() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10 flex-1">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6"
-        >
-          <Home className="h-4 w-4" /> Home
-        </Link>
+        <nav className="text-sm text-muted-foreground mb-6 text-center">
+          <Link to="/" className="hover:text-primary transition">Home</Link>
+          <span className="mx-2">›</span>
+          <span className="text-foreground">Verse Meanings</span>
+        </nav>
 
         <div className="text-center mb-10">
           <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80 mb-3">
