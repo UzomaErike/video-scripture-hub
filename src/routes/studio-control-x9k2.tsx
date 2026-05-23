@@ -70,7 +70,11 @@ function AdminPage() {
         ) : !isAdmin ? (
           <NotAdmin email={session.user.email ?? ""} userId={session.user.id} />
         ) : (
-          <VideoManager email={session.user.email ?? ""} />
+          <>
+            <VideoManager email={session.user.email ?? ""} />
+            <div className="my-12 border-t border-border" />
+            <HymnsManager />
+          </>
         )}
       </main>
       <SiteFooter />
