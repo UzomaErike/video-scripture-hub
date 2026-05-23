@@ -14,10 +14,12 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerseMeaningsIndexRouteImport } from './routes/verse-meanings.index'
 import { Route as SummaryIndexRouteImport } from './routes/summary.index'
 import { Route as BookBookIndexRouteImport } from './routes/book.$book.index'
 import { Route as SummaryBookChapterRouteImport } from './routes/summary.$book.$chapter'
 import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapter'
+import { Route as VerseMeaningsBookChapterVerseRouteImport } from './routes/verse-meanings.$book.$chapter.$verse'
 
 const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
   id: '/studio-control-x9k2',
@@ -44,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerseMeaningsIndexRoute = VerseMeaningsIndexRouteImport.update({
+  id: '/verse-meanings/',
+  path: '/verse-meanings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SummaryIndexRoute = SummaryIndexRouteImport.update({
   id: '/summary/',
   path: '/summary/',
@@ -64,6 +71,12 @@ const BookBookChapterRoute = BookBookChapterRouteImport.update({
   path: '/book/$book/$chapter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerseMeaningsBookChapterVerseRoute =
+  VerseMeaningsBookChapterVerseRouteImport.update({
+    id: '/verse-meanings/$book/$chapter/$verse',
+    path: '/verse-meanings/$book/$chapter/$verse',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,9 +85,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary/': typeof SummaryIndexRoute
+  '/verse-meanings/': typeof VerseMeaningsIndexRoute
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
+  '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +98,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary': typeof SummaryIndexRoute
+  '/verse-meanings': typeof VerseMeaningsIndexRoute
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book': typeof BookBookIndexRoute
+  '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,9 +112,11 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary/': typeof SummaryIndexRoute
+  '/verse-meanings/': typeof VerseMeaningsIndexRoute
   '/book/$book/$chapter': typeof BookBookChapterRoute
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
+  '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,9 +127,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary/'
+    | '/verse-meanings/'
     | '/book/$book/$chapter'
     | '/summary/$book/$chapter'
     | '/book/$book/'
+    | '/verse-meanings/$book/$chapter/$verse'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,9 +140,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary'
+    | '/verse-meanings'
     | '/book/$book/$chapter'
     | '/summary/$book/$chapter'
     | '/book/$book'
+    | '/verse-meanings/$book/$chapter/$verse'
   id:
     | '__root__'
     | '/'
@@ -130,9 +153,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary/'
+    | '/verse-meanings/'
     | '/book/$book/$chapter'
     | '/summary/$book/$chapter'
     | '/book/$book/'
+    | '/verse-meanings/$book/$chapter/$verse'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,9 +167,11 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
   SummaryIndexRoute: typeof SummaryIndexRoute
+  VerseMeaningsIndexRoute: typeof VerseMeaningsIndexRoute
   BookBookChapterRoute: typeof BookBookChapterRoute
   SummaryBookChapterRoute: typeof SummaryBookChapterRoute
   BookBookIndexRoute: typeof BookBookIndexRoute
+  VerseMeaningsBookChapterVerseRoute: typeof VerseMeaningsBookChapterVerseRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verse-meanings/': {
+      id: '/verse-meanings/'
+      path: '/verse-meanings'
+      fullPath: '/verse-meanings/'
+      preLoaderRoute: typeof VerseMeaningsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/summary/': {
       id: '/summary/'
       path: '/summary'
@@ -212,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookBookChapterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verse-meanings/$book/$chapter/$verse': {
+      id: '/verse-meanings/$book/$chapter/$verse'
+      path: '/verse-meanings/$book/$chapter/$verse'
+      fullPath: '/verse-meanings/$book/$chapter/$verse'
+      preLoaderRoute: typeof VerseMeaningsBookChapterVerseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -222,9 +263,11 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,
   SummaryIndexRoute: SummaryIndexRoute,
+  VerseMeaningsIndexRoute: VerseMeaningsIndexRoute,
   BookBookChapterRoute: BookBookChapterRoute,
   SummaryBookChapterRoute: SummaryBookChapterRoute,
   BookBookIndexRoute: BookBookIndexRoute,
+  VerseMeaningsBookChapterVerseRoute: VerseMeaningsBookChapterVerseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
