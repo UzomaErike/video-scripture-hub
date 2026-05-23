@@ -106,7 +106,7 @@ function SummaryPage() {
         </header>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Loading…</p>
+          <p className="text-muted-foreground">Preparing summary… this may take a moment the first time.</p>
         ) : !summary ? (
           <div className="rounded-lg border border-border bg-card p-8 text-center">
             <p className="font-display text-2xl mb-2">Summary coming soon</p>
