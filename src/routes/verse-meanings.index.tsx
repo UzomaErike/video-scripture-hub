@@ -82,7 +82,14 @@ function VerseMeaningsIndex() {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-12 flex-1">
+      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10 flex-1">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6"
+        >
+          <Home className="h-4 w-4" /> Home
+        </Link>
+
         <div className="text-center mb-10">
           <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80 mb-3">
             <MessageSquareQuote className="h-3.5 w-3.5" /> Verse Meanings
