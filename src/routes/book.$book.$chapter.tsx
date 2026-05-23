@@ -137,10 +137,9 @@ function ChapterPage() {
             <h1 className="font-display text-4xl sm:text-5xl text-center flex-1">
               {book.name} <span className="text-primary">{chapter}</span>
             </h1>
-            {next ? (
+            {nextChapterLink ? (
               <Link
-                to="/book/$book/$chapter"
-                params={{ book: book.slug, chapter: String(next) }}
+                {...nextChapterLink}
                 aria-label={`Chapter ${next}`}
                 className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-border hover:bg-accent transition shrink-0"
               >
