@@ -84,11 +84,35 @@ function ChapterPage() {
           <span className="text-foreground">Chapter {chapter}</span>
         </nav>
 
-        <div className="text-center mb-6">
-          <h1 className="font-display text-4xl sm:text-5xl">
-            {book.name} <span className="text-primary">{chapter}</span>
-          </h1>
-          {video?.title && <p className="text-muted-foreground mt-2">{video.title}</p>}
+        <div className="mb-6">
+          <div className="flex items-center justify-between gap-3">
+            {prev ? (
+              <Link
+                to="/book/$book/$chapter"
+                params={{ book: book.slug, chapter: String(prev) }}
+                aria-label={`Chapter ${prev}`}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-border hover:bg-accent transition shrink-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">Ch {prev}</span>
+              </Link>
+            ) : <div className="w-10" />}
+            <h1 className="font-display text-4xl sm:text-5xl text-center flex-1">
+              {book.name} <span className="text-primary">{chapter}</span>
+            </h1>
+            {next ? (
+              <Link
+                to="/book/$book/$chapter"
+                params={{ book: book.slug, chapter: String(next) }}
+                aria-label={`Chapter ${next}`}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-border hover:bg-accent transition shrink-0"
+              >
+                <span className="hidden sm:inline text-sm">Ch {next}</span>
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : <div className="w-10" />}
+          </div>
+          {video?.title && <p className="text-muted-foreground mt-2 text-center">{video.title}</p>}
         </div>
 
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
