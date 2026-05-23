@@ -1,27 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, BookOpen } from "lucide-react";
-import { getNltChapter } from "@/lib/nlt.functions";
+import { getBibleChapter } from "@/lib/bible.functions";
 
 type Translation = "kjv" | "nlt";
 
 interface Verse {
   verse: number;
   text: string;
-}
-
-async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
-  const ref = `${bookName} ${chapter}`.toLowerCase().replace(/\s+/g, "+");
-  const res = await fetch(`https://bible-api.com/${ref}?translation=kjv`);
-  if (!res.ok) throw new Error(`Bible API error: ${res.status}`);
-  const data = await res.json();
-  if (data.error) throw new Error(data.error);
-  return (data.verses as Array<{ verse: number; text: string }>).map((v) => ({
-    verse: v.verse,
-    text: v.text.trim(),
-  }));
 }
 
 export function BibleText({ bookName, chapter }: { bookName: string; chapter: number }) {

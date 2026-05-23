@@ -92,8 +92,8 @@ export const getBibleChapter = createServerFn({ method: "GET" })
       .eq("chapter", data.chapter)
       .maybeSingle();
 
-    if (cached && Array.isArray(cached.verses) && (cached.verses as Verse[]).length > 0) {
-      return { verses: cached.verses as Verse[], cached: true };
+    if (cached && Array.isArray(cached.verses) && (cached.verses as unknown as Verse[]).length > 0) {
+      return { verses: cached.verses as unknown as Verse[], cached: true };
     }
 
     // 2. Fetch from upstream
@@ -111,7 +111,7 @@ export const getBibleChapter = createServerFn({ method: "GET" })
             translation: data.translation,
             book_slug: data.bookSlug,
             chapter: data.chapter,
-            verses: verses as unknown as object,
+            verses: verses as never,
           },
           { onConflict: "translation,book_slug,chapter" },
         );
