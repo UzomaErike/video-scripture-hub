@@ -118,8 +118,7 @@ function ChapterVerses({
     if (!el) return;
     const scroller = el.closest("[data-verse-scroll]") as HTMLElement | null;
     if (!scroller) return;
-    const elTop = el.offsetTop - scroller.offsetTop;
-    const target = elTop - scroller.clientHeight / 2 + el.clientHeight / 2;
+    const target = el.offsetTop - scroller.offsetTop;
     scroller.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
   }, [activeIdx]);
 
@@ -167,3 +166,4 @@ function ChapterVerses({
     </div>
   );
 }
+
