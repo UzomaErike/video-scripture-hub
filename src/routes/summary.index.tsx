@@ -4,7 +4,8 @@ import { useState } from "react";
 import { BIBLE_BOOKS } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { ChevronRight, FileText } from "lucide-react";
+import { ChevronRight, FileText, Search } from "lucide-react";
+
 
 export const Route = createFileRoute("/summary/")({
   head: () => ({
