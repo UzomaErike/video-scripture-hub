@@ -42,7 +42,11 @@ export function RumblePlayer({
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    ensureRumble();
+    // Each Rumble embedJS bundle is hardcoded to a single videoId. Reset and
+    // re-bootstrap on every videoId change so navigating between chapters
+    // doesn't trigger "Unable to load video <id>".
+    resetRumble();
+    bootstrapRumble();
     if (!window.Rumble) return;
 
     const cleanupCallbacks: Array<() => void> = [];
