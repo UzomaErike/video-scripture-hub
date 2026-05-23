@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Moon, Sun, Play } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -9,12 +9,19 @@ function getInitialTheme() {
   return localStorage.getItem("theme") === "light";
 }
 
+function getInitialHighlight() {
+  if (typeof window === "undefined") return true;
+  const stored = localStorage.getItem("verseHighlight");
+  return stored === null ? true : stored === "true";
+}
+
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
 function SettingsPage() {
   const [isLight, setIsLight] = useState(getInitialTheme);
+  const [highlightEnabled, setHighlightEnabled] = useState(getInitialHighlight);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -26,6 +33,10 @@ function SettingsPage() {
       localStorage.setItem("theme", "dark");
     }
   }, [isLight]);
+
+  useEffect(() => {
+    localStorage.setItem("verseHighlight", String(highlightEnabled));
+  }, [highlightEnabled]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -66,6 +77,29 @@ function SettingsPage() {
           />
         </CardContent>
       </Card>
+
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Reading</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Play className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium">Verse Highlighting</p>
+              <p className="text-xs text-muted-foreground">
+                {highlightEnabled ? "Highlight follows video playback" : "Highlighting is off"}
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={highlightEnabled}
+            onCheckedChange={setHighlightEnabled}
+            aria-label="Toggle verse highlighting"
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
