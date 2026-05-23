@@ -1,34 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, BookOpen } from "lucide-react";
+import { getNltChapter } from "@/lib/nlt.functions";
 
 type Translation = "kjv" | "nlt";
 
 interface Verse {
-  book_id: string;
-  book_name: string;
-  chapter: number;
   verse: number;
   text: string;
 }
 
-interface BibleApiResponse {
-  reference: string;
-  verses: Verse[];
-  text: string;
-  translation_id: string;
-  translation_name: string;
-}
-
-async function fetchChapter(bookName: string, chapter: number, translation: Translation): Promise<BibleApiResponse> {
-  // bible-api.com — free, public domain translations. KJV supported, NLT NOT supported (copyrighted).
+async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
   const ref = `${bookName} ${chapter}`.toLowerCase().replace(/\s+/g, "+");
-  const res = await fetch(`https://bible-api.com/${ref}?translation=${translation}`);
+  const res = await fetch(`https://bible-api.com/${ref}?translation=kjv`);
   if (!res.ok) throw new Error(`Bible API error: ${res.status}`);
   const data = await res.json();
   if (data.error) throw new Error(data.error);
-  return data;
+  return (data.verses as Array<{ verse: number; text: string }>).map((v) => ({
+    verse: v.verse,
+    text: v.text.trim(),
+  }));
 }
 
 export function BibleText({ bookName, chapter }: { bookName: string; chapter: number }) {
@@ -52,12 +45,14 @@ export function BibleText({ bookName, chapter }: { bookName: string; chapter: nu
       </div>
 
       <div className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
-        {tab === "nlt" ? (
-          <NltNotice />
-        ) : (
-          <ChapterVerses bookName={bookName} chapter={chapter} translation="kjv" />
-        )}
+        <ChapterVerses bookName={bookName} chapter={chapter} translation={tab} />
       </div>
+
+      {tab === "nlt" && (
+        <p className="text-[11px] text-muted-foreground text-center px-4 pb-3">
+          Scripture quotations from the Holy Bible, New Living Translation, © Tyndale House Foundation.
+        </p>
+      )}
     </div>
   );
 }
@@ -71,10 +66,16 @@ function ChapterVerses({
   chapter: number;
   translation: Translation;
 }) {
+  const nltFn = useServerFn(getNltChapter);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["bible", translation, bookName, chapter],
-    queryFn: () => fetchChapter(bookName, chapter, translation),
-    staleTime: 1000 * 60 * 60, // 1 hour
+    queryFn: async (): Promise<Verse[]> => {
+      if (translation === "kjv") return fetchKjv(bookName, chapter);
+      const res = await nltFn({ data: { bookName, chapter } });
+      return res.verses;
+    },
+    staleTime: 1000 * 60 * 60,
     retry: 1,
   });
 
@@ -86,7 +87,7 @@ function ChapterVerses({
     );
   }
 
-  if (error || !data) {
+  if (error || !data || data.length === 0) {
     return (
       <p className="text-sm text-destructive py-6 text-center">
         Couldn't load chapter text. {error instanceof Error ? error.message : ""}
@@ -95,35 +96,15 @@ function ChapterVerses({
   }
 
   return (
-    <div className="font-display text-lg leading-relaxed text-foreground/95 space-y-1">
-      {data.verses.map((v) => (
-        <p key={v.verse} className="inline">
+    <div className="font-display text-lg leading-relaxed text-foreground/95">
+      {data.map((v) => (
+        <span key={v.verse}>
           <sup className="text-primary font-sans font-semibold text-xs mr-1 align-super">
             {v.verse}
           </sup>
-          <span>{v.text.trim()} </span>
-        </p>
+          <span>{v.text} </span>
+        </span>
       ))}
-    </div>
-  );
-}
-
-function NltNotice() {
-  return (
-    <div className="text-center py-8 px-4">
-      <p className="text-sm text-muted-foreground max-w-md mx-auto">
-        The New Living Translation is copyrighted by Tyndale House Publishers and isn't available
-        through free Bible APIs. To enable NLT here, a licensed API key from{" "}
-        <a
-          href="https://scripture.api.bible/"
-          target="_blank"
-          rel="noreferrer"
-          className="text-primary underline"
-        >
-          API.Bible
-        </a>{" "}
-        (with NLT permissions) is required.
-      </p>
     </div>
   );
 }
