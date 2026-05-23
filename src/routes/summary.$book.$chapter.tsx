@@ -94,9 +94,6 @@ function SummaryPage() {
         </div>
 
         <header className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-primary/80 mb-2">
-            {book.testament === "old" ? "Old Testament" : "New Testament"} · Chapter Summary
-          </p>
           <h1 className="font-display text-4xl sm:text-5xl mb-2">
             {book.name} {chapter} Summary
           </h1>
