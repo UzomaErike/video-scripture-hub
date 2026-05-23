@@ -127,11 +127,23 @@ export const getBibleChapter = createServerFn({ method: "GET" })
       return { verses: cached.verses as unknown as Verse[], cached: true };
     }
 
-    // 2. Fetch from upstream
-    const verses =
-      data.translation === "kjv"
-        ? await fetchKjv(data.bookName, data.chapter)
-        : await fetchNlt(data.bookName, data.chapter);
+    // 2. Fetch from upstream (with fallback for KJV rate limiting)
+    let verses: Verse[];
+    try {
+      verses =
+        data.translation === "kjv"
+          ? await fetchKjv(data.bookName, data.chapter)
+          : await fetchNlt(data.bookName, data.chapter);
+    } catch (err) {
+      console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
+      // Fallback: use AI to generate the requested translation
+      try {
+        verses = await fetchNlt(data.bookName, data.chapter);
+      } catch (fallbackErr) {
+        console.error("Fallback fetch also failed:", fallbackErr);
+        return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
+      }
+    }
 
     // 3. Store (best-effort; ignore failures)
     if (verses.length > 0) {
