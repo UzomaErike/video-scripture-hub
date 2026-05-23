@@ -45,7 +45,7 @@ export function BibleText({
         </Tabs>
       </div>
 
-      <div className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
+      <div data-verse-scroll className="px-5 py-5 max-h-[500px] overflow-y-auto scrollbar-hide">
         <ChapterVerses
           bookName={bookName}
           bookSlug={bookSlug}
