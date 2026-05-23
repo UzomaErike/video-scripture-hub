@@ -104,8 +104,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 flex flex-col items-center gap-6">
         <a
           href="#"
-          className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold text-white shadow-lg transition hover:opacity-90"
-          style={{ background: "linear-gradient(180deg, #2b6fd6 0%, #1e3a8a 100%)" }}
+          className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition hover:opacity-90 bg-primary text-primary-foreground"
         >
           <span aria-hidden>🙏</span>
           Become a Video Bible Maker
