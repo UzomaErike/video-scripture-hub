@@ -3,6 +3,8 @@ import { useEffect, useRef, useId } from "react";
 declare global {
   interface Window {
     Rumble?: (cmd: string, opts: Record<string, unknown>) => void;
+    _Rumble?: string;
+    __videoBibleRumbleVideoId?: string;
   }
 }
 
@@ -25,6 +27,18 @@ function bootstrapRumble() {
   document.head.appendChild(s);
 }
 
+function ensureRumble(videoId: string) {
+  if (typeof window === "undefined") return false;
+
+  if (window.__videoBibleRumbleVideoId !== videoId || typeof window.Rumble !== "function") {
+    resetRumble();
+    bootstrapRumble();
+    window.__videoBibleRumbleVideoId = videoId;
+  }
+
+  return typeof window.Rumble === "function";
+}
+
 export function RumblePlayer({
   videoId,
   onTime,
@@ -42,15 +56,15 @@ export function RumblePlayer({
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Each Rumble embedJS bundle is hardcoded to a single videoId. Reset and
-    // re-bootstrap on every videoId change so navigating between chapters
-    // doesn't trigger "Unable to load video <id>".
-    resetRumble();
-    bootstrapRumble();
-    if (!window.Rumble) return;
+    // Each Rumble embedJS bundle is hardcoded to a single videoId. Only reset
+    // when the video actually changes; tearing it down on every effect cleanup
+    // breaks the player in React Strict Mode and leaves the poster frozen.
+    rootRef.current?.replaceChildren();
+    if (!ensureRumble(videoId) || !window.Rumble) return;
 
     const cleanupCallbacks: Array<() => void> = [];
     const attachedVideos = new WeakSet<HTMLVideoElement>();
+    let isActive = true;
 
     const readVideoState = (video: HTMLVideoElement) => {
       const nextDuration = Number.isFinite(video.duration) ? video.duration : 0;
@@ -115,12 +129,14 @@ export function RumblePlayer({
           on?: (event: string, cb: (...args: unknown[]) => void) => void;
         }) => {
           const readDuration = () => {
+            if (!isActive) return;
             try {
               const d = player.getDuration?.();
               if (typeof d === "number" && d > 0) onDuration?.(d);
             } catch { /* ignore */ }
           };
           const readTime = () => {
+            if (!isActive) return;
             try {
               const t = player.getCurrentTime?.();
               if (typeof t === "number" && !Number.isNaN(t)) onTime?.(t);
@@ -164,13 +180,14 @@ export function RumblePlayer({
     }
 
     return () => {
+      isActive = false;
       observer.disconnect();
       for (const cleanup of cleanupCallbacks) cleanup();
       if (intervalRef.current) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      resetRumble();
+      rootRef.current?.replaceChildren();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);

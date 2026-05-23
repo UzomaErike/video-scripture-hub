@@ -1,5 +1,16 @@
 import { useEffect, useRef } from "react";
 
+function resetRumbleEmbed() {
+  if (typeof window === "undefined") return;
+
+  try { delete (window as unknown as Record<string, unknown>).Rumble; } catch { /* ignore */ }
+  try { delete (window as unknown as Record<string, unknown>)._Rumble; } catch { /* ignore */ }
+  try { delete (window as unknown as Record<string, unknown>).__videoBibleRumbleVideoId; } catch { /* ignore */ }
+
+  const scripts = document.querySelectorAll('script[src*="rumble.com/embedJS"]');
+  scripts.forEach((script) => script.parentNode?.removeChild(script));
+}
+
 /**
  * Renders raw embed HTML (e.g. Rumble iframe OR monetized script embed)
  * and properly executes any <script> tags by recreating them.
@@ -23,6 +34,9 @@ export function EmbedHtml({
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
+    const isRumbleEmbed = /rumble\.com\/embedJS|Rumble\("play"/i.test(html);
+
+    if (isRumbleEmbed) resetRumbleEmbed();
 
     const cleanupCallbacks: Array<() => void> = [];
     const attachedVideos = new WeakSet<HTMLVideoElement>();
@@ -96,6 +110,7 @@ export function EmbedHtml({
       observer.disconnect();
       for (const cleanup of cleanupCallbacks) cleanup();
       onVideoDetected?.(false);
+      if (isRumbleEmbed) resetRumbleEmbed();
       if (root) root.innerHTML = "";
     };
   }, [html, onDuration, onTime, onVideoDetected]);
