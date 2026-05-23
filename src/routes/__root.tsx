@@ -126,7 +126,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <DonateDialogProvider>
+        <Outlet />
+      </DonateDialogProvider>
     </QueryClientProvider>
   );
 }
