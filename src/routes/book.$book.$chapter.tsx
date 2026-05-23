@@ -70,6 +70,7 @@ function ChapterPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const rumbleId = video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ?? null;
+  const hasActiveRumbleVideo = Boolean(rumbleId);
 
   const navigate = useNavigate();
   const advancedRef = useRef(false);
@@ -79,15 +80,16 @@ function ChapterPage() {
     advancedRef.current = false;
     setCurrentTime(0);
     setDuration(0);
-  }, [book.slug, chapter]);
+  }, [book.slug, chapter, rumbleId]);
   useEffect(() => {
     if (advancedRef.current) return;
+    if (!hasActiveRumbleVideo) return;
     if (duration <= 0 || currentTime <= 0) return;
     if (currentTime < duration - 0.75) return;
     if (next == null) return;
     advancedRef.current = true;
     navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
-  }, [currentTime, duration, next, book.slug, navigate]);
+  }, [currentTime, duration, next, book.slug, navigate, hasActiveRumbleVideo]);
 
   return (
     <div className="min-h-screen flex flex-col">
