@@ -14,34 +14,6 @@ interface Verse {
   text: string;
 }
 
-function nltRefSlug(bookName: string) {
-  return bookName.replace(/\s+/g, "").replace(/[^A-Za-z0-9]/g, "");
-}
-
-function parseNltVerses(html: string): Verse[] {
-  const verses: Verse[] = [];
-  const re = /<verse_export[^>]*vn="(\d+)"[^>]*>([\s\S]*?)<\/verse_export>/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
-    const num = parseInt(m[1], 10);
-    let inner = m[2];
-    inner = inner.replace(/<a class="a-tn"[\s\S]*?<\/span>/g, "");
-    inner = inner.replace(/<span class="tn"[\s\S]*?<\/span>/g, "");
-    inner = inner.replace(/<span class="vn">\d+<\/span>/g, "");
-    const text = inner
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&ldquo;|&rdquo;/g, '"')
-      .replace(/&lsquo;|&rsquo;/g, "'")
-      .replace(/\s+/g, " ")
-      .trim();
-    if (text) verses.push({ verse: num, text });
-  }
-  return verses;
-}
 
 async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
   const ref = `${bookName} ${chapter}`.toLowerCase().replace(/\s+/g, "+");
