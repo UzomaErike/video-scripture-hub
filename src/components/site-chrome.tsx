@@ -103,13 +103,18 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 mt-24">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 flex flex-col items-center gap-6">
-        <a
-          href="#"
-          className="group relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 hover:scale-105 active:scale-95 active:translate-y-0 bg-primary text-primary-foreground"
-        >
-          <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
-          Become a Video Bible Maker
-        </a>
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="group relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 hover:scale-105 active:scale-95 active:translate-y-0 bg-primary text-primary-foreground"
+            >
+              <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
+              Become a Video Bible Maker
+            </button>
+          </DialogTrigger>
+          <BecomeMakerDialogContent />
+        </Dialog>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a href="#" aria-label="Download on the App Store" className="group inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
             <svg viewBox="0 0 24 24" className="h-7 w-7 transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" fill="currentColor" aria-hidden>
