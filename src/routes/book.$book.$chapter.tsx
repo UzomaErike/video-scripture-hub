@@ -1,6 +1,6 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getBook } from "@/lib/bible-books";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
@@ -70,6 +70,20 @@ function ChapterPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const rumbleId = video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ?? null;
+
+  const navigate = useNavigate();
+  const advancedRef = useRef(false);
+  useEffect(() => {
+    advancedRef.current = false;
+  }, [book.slug, chapter]);
+  useEffect(() => {
+    if (advancedRef.current) return;
+    if (duration <= 0 || currentTime <= 0) return;
+    if (currentTime < duration - 0.75) return;
+    if (next == null) return;
+    advancedRef.current = true;
+    navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
+  }, [currentTime, duration, next, book.slug, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
