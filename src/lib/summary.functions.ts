@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getAuthedUserId } from "@/lib/require-auth";
 
 const Input = z.object({
   bookSlug: z.string().min(1).max(40),
