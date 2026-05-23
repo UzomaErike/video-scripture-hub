@@ -1,3 +1,4 @@
+import { DonateDialogProvider } from "@/components/site-chrome";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
