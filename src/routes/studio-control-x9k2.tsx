@@ -74,6 +74,8 @@ function AdminPage() {
             <VideoManager email={session.user.email ?? ""} />
             <div className="my-12 border-t border-border" />
             <HymnsManager />
+            <div className="my-12 border-t border-border" />
+            <MoviesManager />
           </>
         )}
       </main>
