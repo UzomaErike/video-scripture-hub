@@ -6,7 +6,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 type Hymn = { id: string; title: string };
 
-export const Route = createFileRoute("/christian-hymns")({
+export const Route = createFileRoute("/christian-hymns/")({
   head: () => ({
     meta: [
       { title: "Christian Hymns and Lyrics — VideoBible" },
