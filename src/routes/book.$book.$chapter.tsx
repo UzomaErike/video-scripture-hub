@@ -67,6 +67,13 @@ function ChapterPage() {
   const prev = chapter > 1 ? chapter - 1 : null;
   const next = chapter < book.chapters ? chapter + 1 : null;
 
+  const nextChapterLink = next
+    ? linkOptions({
+        to: "/book/$book/$chapter",
+        params: { book: book.slug, chapter: String(next) },
+      })
+    : null;
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const rumbleId =
@@ -90,10 +97,10 @@ function ChapterPage() {
     if (!hasActiveVideo) return;
     if (duration <= 0 || currentTime <= 0) return;
     if (currentTime < duration - 0.75) return;
-    if (next == null) return;
+    if (!nextChapterLink) return;
     advancedRef.current = true;
-    navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
-  }, [currentTime, duration, next, book.slug, navigate, hasActiveVideo]);
+    navigate(nextChapterLink);
+  }, [currentTime, duration, hasActiveVideo, nextChapterLink, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
