@@ -236,7 +236,6 @@ function BookCombobox({
                 >
                   <span className="mr-2">{b.emoji}</span>
                   <span className="flex-1">{b.name}</span>
-                  <span className="text-xs text-muted-foreground mr-2">{b.chapters} ch</span>
                   <Check
                     className={cn(
                       "h-4 w-4",
