@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useRouter, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, useNavigate, linkOptions } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { getBook } from "@/lib/bible-books";
