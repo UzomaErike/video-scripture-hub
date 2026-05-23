@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { BIBLE_BOOKS, type BibleBook, getBook } from "@/lib/bible-books";
 import { getNltChapter } from "@/lib/nlt.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight } from "lucide-react";
+import { MessageSquareQuote, Check, ChevronsUpDown, ArrowRight, Home } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
@@ -82,7 +82,14 @@ function VerseMeaningsIndex() {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-12 flex-1">
+      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-10 flex-1">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6"
+        >
+          <Home className="h-4 w-4" /> Home
+        </Link>
+
         <div className="text-center mb-10">
           <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80 mb-3">
             <MessageSquareQuote className="h-3.5 w-3.5" /> Verse Meanings
