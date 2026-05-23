@@ -106,6 +106,8 @@ function ChapterPage() {
           )}
         </div>
 
+        <BibleText bookName={book.name} chapter={chapter} />
+
         {/* Nav */}
         <div className="flex justify-between items-center mt-8">
           {prev ? (
