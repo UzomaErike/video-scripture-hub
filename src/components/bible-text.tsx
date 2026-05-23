@@ -27,12 +27,7 @@ export function BibleText({
   currentTime?: number;
   duration?: number;
 }) {
-  const [tab, setTab] = useState<Translation>("nlt");
-
-  // Reset to NLT whenever the chapter changes (component may stay mounted across navigation)
-  useEffect(() => {
-    setTab("nlt");
-  }, [bookSlug, chapter]);
+  const [tab, setTab] = useState<Translation>("kjv");
 
   return (
     <div className="mt-8 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden">

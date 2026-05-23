@@ -105,11 +105,9 @@ async function fetchNlt(bookName: string, chapter: number): Promise<Verse[]> {
   if (!args) throw new Error("AI did not return chapter verses");
 
   const parsed = JSON.parse(args) as { verses: Verse[] };
-  const verses = parsed.verses
+  return parsed.verses
     .filter((v) => v && typeof v.verse === "number" && typeof v.text === "string")
     .sort((a, b) => a.verse - b.verse);
-  if (verses.length === 0) throw new Error("NLT AI returned no verses");
-  return verses;
 }
 
 
@@ -139,13 +137,9 @@ export const getBibleChapter = createServerFn({ method: "GET" })
           : await fetchNlt(data.bookName, data.chapter);
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
-      // Fall back to the OTHER translation so the reader sees something.
       try {
-        verses =
-          data.translation === "kjv"
-            ? await fetchNlt(data.bookName, data.chapter)
-            : await fetchKjv(data.bookName, data.chapter);
-        usedFallback = true;
+        verses = await fetchNlt(data.bookName, data.chapter);
+        usedFallback = data.translation !== "nlt";
       } catch (fallbackErr) {
         console.error("Fallback fetch also failed:", fallbackErr);
         return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
