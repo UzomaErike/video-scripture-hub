@@ -33,10 +33,67 @@ export function RumblePlayer({
   const uid = useId().replace(/:/g, "");
   const divId = `rumble_${videoId}_${uid}`;
   const intervalRef = useRef<number | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     ensureRumble();
     if (!window.Rumble) return;
+
+    const cleanupCallbacks: Array<() => void> = [];
+    const attachedVideos = new WeakSet<HTMLVideoElement>();
+
+    const readVideoState = (video: HTMLVideoElement) => {
+      const nextDuration = Number.isFinite(video.duration) ? video.duration : 0;
+      const nextTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+
+      if (nextDuration > 0) onDuration?.(nextDuration);
+      if (nextTime >= 0) onTime?.(nextTime);
+    };
+
+    const attachVideo = (video: HTMLVideoElement) => {
+      if (attachedVideos.has(video)) return;
+      attachedVideos.add(video);
+
+      const sync = () => readVideoState(video);
+      const events: Array<keyof HTMLMediaElementEventMap> = [
+        "loadedmetadata",
+        "durationchange",
+        "timeupdate",
+        "seeking",
+        "seeked",
+        "play",
+        "playing",
+        "pause",
+        "ended",
+      ];
+
+      for (const eventName of events) {
+        video.addEventListener(eventName, sync);
+      }
+
+      cleanupCallbacks.push(() => {
+        for (const eventName of events) {
+          video.removeEventListener(eventName, sync);
+        }
+      });
+
+      sync();
+    };
+
+    const scanForVideos = () => {
+      const root = rootRef.current;
+      if (!root) return;
+      const videos = Array.from(root.querySelectorAll("video"));
+      for (const video of videos) attachVideo(video);
+    };
+
+    const observer = new MutationObserver(() => {
+      scanForVideos();
+    });
+
+    if (rootRef.current) {
+      observer.observe(rootRef.current, { childList: true, subtree: true });
+    }
 
     window.Rumble("play", {
       video: videoId,
@@ -84,14 +141,18 @@ export function RumblePlayer({
         // Fallback polling as a safety net.
         readDuration();
         readTime();
+        scanForVideos();
         intervalRef.current = window.setInterval(() => {
           readDuration();
           readTime();
+          scanForVideos();
         }, 500);
       },
     });
 
     return () => {
+      observer.disconnect();
+      for (const cleanup of cleanupCallbacks) cleanup();
       if (intervalRef.current) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -100,5 +161,5 @@ export function RumblePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
 
-  return <div id={divId} className={className} />;
+  return <div id={divId} ref={rootRef} className={className} />;
 }

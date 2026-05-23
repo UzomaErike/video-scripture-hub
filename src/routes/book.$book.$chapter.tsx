@@ -69,27 +69,31 @@ function ChapterPage() {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const rumbleId = video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ?? null;
-  const hasActiveRumbleVideo = Boolean(rumbleId);
+  const rumbleId =
+    video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ??
+    video?.embed_html?.match(/id="rumble_(v[a-z0-9]+)"/i)?.[1] ??
+    video?.embed_html?.match(/embedJS\/[a-z0-9]+\.(v[a-z0-9]+)\//i)?.[1] ??
+    null;
+  const [hasEmbeddedVideo, setHasEmbeddedVideo] = useState(false);
+  const hasActiveVideo = Boolean(rumbleId) || hasEmbeddedVideo;
 
   const navigate = useNavigate();
   const advancedRef = useRef(false);
   useEffect(() => {
-    // Reset playback tracking when chapter changes so stale values from the
-    // previous video don't immediately retrigger auto-advance.
     advancedRef.current = false;
     setCurrentTime(0);
     setDuration(0);
-  }, [book.slug, chapter, rumbleId]);
+    setHasEmbeddedVideo(false);
+  }, [book.slug, chapter, video?.embed_html]);
   useEffect(() => {
     if (advancedRef.current) return;
-    if (!hasActiveRumbleVideo) return;
+    if (!hasActiveVideo) return;
     if (duration <= 0 || currentTime <= 0) return;
     if (currentTime < duration - 0.75) return;
     if (next == null) return;
     advancedRef.current = true;
     navigate({ to: "/book/$book/$chapter", params: { book: book.slug, chapter: String(next) } });
-  }, [currentTime, duration, next, book.slug, navigate, hasActiveRumbleVideo]);
+  }, [currentTime, duration, next, book.slug, navigate, hasActiveVideo]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -153,7 +157,14 @@ function ChapterPage() {
               className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full w-full h-full"
             />
           ) : video?.embed_html ? (
-            <EmbedHtml html={video.embed_html} className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full" />
+            <EmbedHtml
+              key={`${book.slug}-${chapter}`}
+              html={video.embed_html}
+              onTime={setCurrentTime}
+              onDuration={setDuration}
+              onVideoDetected={setHasEmbeddedVideo}
+              className="absolute inset-0 [&>iframe]:w-full [&>iframe]:h-full [&>div]:w-full [&>div]:h-full [&_video]:w-full [&_video]:h-full w-full h-full"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-center p-8">
               <div>
