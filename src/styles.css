@@ -102,6 +102,31 @@
   html, body { background-color: var(--color-background); color: var(--color-foreground); }
   body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
   h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+
+  /* Alive buttons — lift on hover, press on click */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  button:not(:disabled):hover,
+  [role="button"]:not(:disabled):hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  button:not(:disabled):active,
+  [role="button"]:not(:disabled):active {
+    transform: scale(0.95) translateY(0);
+  }
+}
+
+/* Utility class for custom elements that act as buttons */
+.btn-alive {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.btn-alive:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-alive:active {
+  transform: scale(0.95) translateY(0);
 }
 
 /* Force Rumble iframes responsive */
