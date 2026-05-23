@@ -127,7 +127,11 @@ export const getOrGenerateSummary = createServerFn({ method: "POST" })
     // 2. Fetch source from videobible.com
     const url = `https://www.videobible.com/summary/${data.bookSlug}-${data.chapter}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 VideoBibleSummaryBot" },
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml",
+      },
     });
     if (!res.ok) throw new Error(`Source not found (${res.status})`);
     const html = await res.text();
