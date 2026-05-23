@@ -17,11 +17,20 @@ interface Verse {
 
 async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
   const ref = `${bookName} ${chapter}`.toLowerCase().replace(/\s+/g, "+");
-  const res = await fetch(`https://bible-api.com/${ref}?translation=kjv`);
-  if (!res.ok) throw new Error(`KJV API error: ${res.status}`);
-  const data = (await res.json()) as { error?: string; verses?: Array<{ verse: number; text: string }> };
-  if (data.error) throw new Error(data.error);
-  return (data.verses ?? []).map((v) => ({ verse: v.verse, text: v.text.trim() }));
+  const url = `https://bible-api.com/${ref}?translation=kjv`;
+  // Retry on 429 with exponential backoff
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(url);
+    if (res.status === 429) {
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+      continue;
+    }
+    if (!res.ok) throw new Error(`KJV API error: ${res.status}`);
+    const data = (await res.json()) as { error?: string; verses?: Array<{ verse: number; text: string }> };
+    if (data.error) throw new Error(data.error);
+    return (data.verses ?? []).map((v) => ({ verse: v.verse, text: v.text.trim() }));
+  }
+  throw new Error("KJV API rate limited (429)");
 }
 
 async function fetchNlt(bookName: string, chapter: number): Promise<Verse[]> {
