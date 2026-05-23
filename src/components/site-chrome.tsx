@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
-  { label: "Contact Us", href: "#", icon: Mail },
+  { label: "Contact Us", href: "mailto:videobible.watch@gmail.com?subject=VideoBible%20Inquiry&body=Hello%20VideoBible%20team,", icon: Mail },
   { label: "Settings", to: "/settings", icon: Settings },
 ];
 
