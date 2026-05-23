@@ -170,6 +170,7 @@ export function RumblePlayer({
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      resetRumble();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
