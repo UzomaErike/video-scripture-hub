@@ -1,3 +1,4 @@
+import { DonateDialogProvider } from "@/components/site-chrome";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -125,7 +126,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <DonateDialogProvider>
+        <Outlet />
+      </DonateDialogProvider>
     </QueryClientProvider>
   );
 }

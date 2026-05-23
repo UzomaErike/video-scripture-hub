@@ -1,27 +1,66 @@
+import * as React from "react";
 import { Link } from "@tanstack/react-router";
 import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Info, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 type NavItem = {
   label: string;
   icon: typeof Headphones;
   to?: string;
   href?: string;
+  dialogTrigger?: boolean;
 };
 
 const navItems: NavItem[] = [
   { label: "Audio Bible", href: "#", icon: Headphones },
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", href: "#", icon: MessageSquareQuote },
-  { label: "Support This Mission", href: "#", icon: Heart },
+  { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "#", icon: Mail },
   { label: "About Us", href: "#", icon: Info },
   { label: "Settings", to: "/settings", icon: Settings },
 ];
 
+/* ------------------------------------------------------------------ */
+//  Shared donate-dialog state
+/* ------------------------------------------------------------------ */
+const DonateDialogContext = React.createContext<{
+  open: boolean;
+  setOpen: (v: boolean) => void;
+} | null>(null);
+
+export function DonateDialogProvider({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <DonateDialogContext.Provider value={{ open, setOpen }}>
+      {children}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DonateDialogContent />
+      </Dialog>
+    </DonateDialogContext.Provider>
+  );
+}
+
+export function useDonateDialog() {
+  const ctx = React.useContext(DonateDialogContext);
+  if (!ctx) throw new Error("useDonateDialog must be used within DonateDialogProvider");
+  return ctx;
+}
+
+/* ------------------------------------------------------------------ */
+//  Header
+/* ------------------------------------------------------------------ */
 export function SiteHeader() {
+  const { setOpen } = useDonateDialog();
+  const [sheetOpen, setSheetOpen] = React.useState(false);
+
+  const openDonate = React.useCallback(() => {
+    setSheetOpen(false);
+    setOpen(true);
+  }, [setOpen]);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -40,7 +79,15 @@ export function SiteHeader() {
             Books
           </Link>
           {navItems.map((item) =>
-            item.to ? (
+            item.dialogTrigger ? (
+              <button
+                key={item.label}
+                onClick={() => setOpen(true)}
+                className="hover:text-foreground transition-colors whitespace-nowrap"
+              >
+                {item.label}
+              </button>
+            ) : item.to ? (
               <Link key={item.label} to={item.to} activeProps={{ className: "text-foreground" }} className="hover:text-foreground transition-colors whitespace-nowrap">
                 {item.label}
               </Link>
@@ -53,7 +100,7 @@ export function SiteHeader() {
         </nav>
 
         {/* Mobile sidebar trigger */}
-        <Sheet>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
               <Menu className="h-5 w-5" />
@@ -71,7 +118,16 @@ export function SiteHeader() {
                 Books
               </Link>
               {navItems.map((item) =>
-                item.to ? (
+                item.dialogTrigger ? (
+                  <button
+                    key={item.label}
+                    onClick={openDonate}
+                    className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition-colors text-left"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </button>
+                ) : item.to ? (
                   <Link
                     key={item.label}
                     to={item.to}
@@ -99,22 +155,23 @@ export function SiteHeader() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+//  Footer
+/* ------------------------------------------------------------------ */
 export function SiteFooter() {
+  const { setOpen } = useDonateDialog();
+
   return (
     <footer className="border-t border-border/60 mt-24">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 flex flex-col items-center gap-6">
-        <Dialog>
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="group relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 hover:scale-105 active:scale-95 active:translate-y-0 bg-primary text-primary-foreground"
-            >
-              <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
-              Become a Video Bible Maker
-            </button>
-          </DialogTrigger>
-          <BecomeMakerDialogContent />
-        </Dialog>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-base font-display font-semibold shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 hover:scale-105 active:scale-95 active:translate-y-0 bg-primary text-primary-foreground"
+        >
+          <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
+          Become a Video Bible Maker
+        </button>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a href="#" aria-label="Download on the App Store" className="group inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
             <svg viewBox="0 0 24 24" className="h-7 w-7 transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" fill="currentColor" aria-hidden>
@@ -144,7 +201,10 @@ export function SiteFooter() {
   );
 }
 
-function BecomeMakerDialogContent() {
+/* ------------------------------------------------------------------ */
+//  Dialog content
+/* ------------------------------------------------------------------ */
+function DonateDialogContent() {
   const testimonials = [
     { quote: "With humble tears…thank you! The Video Bible is perfectly timed. The world needs it more than ever!", author: "Judi P." },
     { quote: "There is something about being able to \"watch and read\" that is truly life altering and feeds my soul.", author: "Adriana G." },
