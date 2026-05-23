@@ -85,14 +85,14 @@ function ChapterVerses({
   }
 
   return (
-    <div className="font-display text-lg leading-relaxed text-foreground/95">
+    <div className="font-display text-lg leading-relaxed text-foreground/95 space-y-2">
       {data.map((v) => (
-        <span key={v.verse}>
-          <sup className="text-primary font-sans font-semibold text-xs mr-1 align-super">
+        <p key={v.verse} className="flex gap-2">
+          <sup className="text-primary font-sans font-semibold text-xs mt-1.5 shrink-0">
             {v.verse}
           </sup>
-          <span>{v.text} </span>
-        </span>
+          <span>{v.text}</span>
+        </p>
       ))}
     </div>
   );
