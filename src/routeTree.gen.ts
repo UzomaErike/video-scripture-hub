@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ChristianMoviesRouteImport } from './routes/christian-movies'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChristianMoviesRoute = ChristianMoviesRouteImport.update({
+  id: '/christian-movies',
+  path: '/christian-movies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary/': typeof SummaryIndexRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary': typeof SummaryIndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/christian-movies': typeof ChristianMoviesRoute
   '/settings': typeof SettingsRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/summary/': typeof SummaryIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary/'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/christian-movies'
     | '/settings'
     | '/studio-control-x9k2'
     | '/summary/'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BooksRoute: typeof BooksRoute
+  ChristianMoviesRoute: typeof ChristianMoviesRoute
   SettingsRoute: typeof SettingsRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
   SummaryIndexRoute: typeof SummaryIndexRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/christian-movies': {
+      id: '/christian-movies'
+      path: '/christian-movies'
+      fullPath: '/christian-movies'
+      preLoaderRoute: typeof ChristianMoviesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BooksRoute: BooksRoute,
+  ChristianMoviesRoute: ChristianMoviesRoute,
   SettingsRoute: SettingsRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,
   SummaryIndexRoute: SummaryIndexRoute,
@@ -272,3 +293,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
