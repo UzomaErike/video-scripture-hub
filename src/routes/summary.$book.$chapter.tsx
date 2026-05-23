@@ -169,7 +169,7 @@ function SummaryPage() {
               <section>
                 <h2 className="font-display text-2xl mb-3">Themes</h2>
                 <div className="flex flex-wrap gap-2">
-                  {summary.themes.map((t) => (
+                  {summary.themes.map((t: string) => (
                     <span key={t} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/30">
                       {t}
                     </span>
