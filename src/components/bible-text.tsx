@@ -27,7 +27,7 @@ export function BibleText({
   currentTime?: number;
   duration?: number;
 }) {
-  const [tab, setTab] = useState<Translation>("kjv");
+  const [tab, setTab] = useState<Translation>("nlt");
 
   return (
     <div className="mt-8 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden">
@@ -40,8 +40,8 @@ export function BibleText({
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Translation)}>
           <TabsList>
-            <TabsTrigger value="kjv">KJV</TabsTrigger>
             <TabsTrigger value="nlt">NLT</TabsTrigger>
+            <TabsTrigger value="kjv">KJV</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
