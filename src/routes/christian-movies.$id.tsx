@@ -7,7 +7,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 type Movie = { id: string; title: string; image_url: string | null };
 type Episode = { id: string; title: string };
 
-export const Route = createFileRoute("/christian-movies/$id/")({
+export const Route = createFileRoute("/christian-movies/$id")({
   component: MovieDetailPage,
 });
 
