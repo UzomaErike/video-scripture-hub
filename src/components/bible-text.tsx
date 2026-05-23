@@ -94,8 +94,16 @@ function ChapterVerses({
         setHighlightEnabled(e.newValue === "true");
       }
     };
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent<boolean>).detail;
+      if (typeof detail === "boolean") setHighlightEnabled(detail);
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("verseHighlightChange", onCustom);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("verseHighlightChange", onCustom);
+    };
   }, []);
 
   const { data, isLoading, error } = useQuery({
