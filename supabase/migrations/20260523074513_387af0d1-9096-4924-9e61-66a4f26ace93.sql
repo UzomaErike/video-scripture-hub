@@ -1,0 +1,1 @@
+DELETE FROM public.bible_chapters WHERE translation='nlt' AND book_slug='genesis' AND chapter=4;
