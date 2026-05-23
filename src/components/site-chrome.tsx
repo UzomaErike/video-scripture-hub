@@ -143,3 +143,88 @@ export function SiteFooter() {
     </footer>
   );
 }
+
+function BecomeMakerDialogContent() {
+  const testimonials = [
+    { quote: "With humble tears…thank you! The Video Bible is perfectly timed. The world needs it more than ever!", author: "Judi P." },
+    { quote: "There is something about being able to \"watch and read\" that is truly life altering and feeds my soul.", author: "Adriana G." },
+    { quote: "The Video Bible brings my imagination to life. It has me meditating on God like never before.", author: "William D." },
+  ];
+  return (
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background border-border">
+      <div className="flex flex-col items-center text-center pt-2">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+          <span className="text-3xl text-primary">✝</span>
+        </div>
+        <DialogTitle className="font-display text-3xl sm:text-4xl text-primary tracking-wide">
+          Become a Video Bible Maker
+        </DialogTitle>
+        <DialogDescription className="mt-2 text-xs tracking-[0.2em] uppercase text-muted-foreground">
+          Help us bring God's word to the world
+        </DialogDescription>
+        <div className="mt-4 h-px w-24 bg-primary/40" />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-border bg-card p-6 text-left">
+        <h3 className="font-display text-lg text-primary mb-3">📖 Why Your Support Matters</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          VideoBible exists to make Scripture accessible to every person on earth — in the most engaging and life-giving way possible. Every chapter you watch represents hours of careful curation, production, and publishing.
+        </p>
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+          <span className="text-foreground font-semibold">Your donation directly funds the creation of more videos.</span> Each contribution helps us cover the cost of video production, licensing, hosting, and the dedicated team working to bring every one of the Bible's 1,189 chapters to life on screen.
+        </p>
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+          Whether you give $5 or $500 — every gift moves us one chapter closer to completing the full Video Bible for generations to come.
+        </p>
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {[
+          { n: "66", l: "Books of the Bible" },
+          { n: "1,189", l: "Chapters to Film" },
+          { n: "∞", l: "Lives to Transform" },
+        ].map((s) => (
+          <div key={s.l} className="rounded-lg border border-border bg-card px-3 py-4 text-center">
+            <div className="font-display text-2xl text-primary">{s.n}</div>
+            <div className="mt-1 text-[10px] tracking-[0.15em] uppercase text-muted-foreground">{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex flex-col items-center">
+        <a
+          href="https://www.paypal.com/donate/?hosted_button_id=SFGP3UFGSQ48J"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center justify-center gap-3 rounded-full px-8 py-3 text-base font-display font-semibold text-white shadow-lg transition-all duration-300 ease-out hover:shadow-2xl hover:-translate-y-0.5 hover:scale-105 active:scale-95"
+          style={{ background: "linear-gradient(180deg, #2b6fd6 0%, #1e3a8a 100%)" }}
+        >
+          <span className="inline-flex items-center justify-center rounded bg-white px-1.5 py-0.5 text-[10px] font-bold text-[#003087]">PayPal</span>
+          Donate with PayPal
+        </a>
+        <p className="mt-2 text-xs text-muted-foreground">🔒 Secure · Fast · Any amount welcome</p>
+        <p className="mt-1 text-xs text-muted-foreground">You will be taken to PayPal's secure checkout to complete your gift.</p>
+      </div>
+
+      <div className="mt-6">
+        <h4 className="text-center text-sm tracking-[0.2em] uppercase text-primary">✦ What People Are Saying ✦</h4>
+        <div className="mt-4 space-y-3">
+          {testimonials.map((t) => (
+            <blockquote key={t.author} className="rounded-lg border border-border bg-card p-4 border-l-4 border-l-primary">
+              <p className="text-sm italic text-muted-foreground">"{t.quote}"</p>
+              <footer className="mt-2 text-xs tracking-wider uppercase text-primary">— {t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-center">
+        <DialogClose asChild>
+          <button className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-md border border-border">
+            ← Back to VideoBible
+          </button>
+        </DialogClose>
+      </div>
+    </DialogContent>
+  );
+}
