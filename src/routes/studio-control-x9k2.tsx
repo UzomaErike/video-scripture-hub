@@ -70,7 +70,11 @@ function AdminPage() {
         ) : !isAdmin ? (
           <NotAdmin email={session.user.email ?? ""} userId={session.user.id} />
         ) : (
-          <VideoManager email={session.user.email ?? ""} />
+          <>
+            <VideoManager email={session.user.email ?? ""} />
+            <div className="my-12 border-t border-border" />
+            <HymnsManager />
+          </>
         )}
       </main>
       <SiteFooter />
@@ -398,6 +402,155 @@ function VideoManager({ email }: { email: string }) {
             </button>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface HymnRow {
+  id: string;
+  title: string;
+  embed_html: string;
+  sort_order: number;
+}
+
+function HymnsManager() {
+  const [hymns, setHymns] = useState<HymnRow[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [embedHtml, setEmbedHtml] = useState("");
+  const [sortOrder, setSortOrder] = useState(0);
+  const [busy, setBusy] = useState(false);
+
+  async function refresh() {
+    const { data } = await supabase
+      .from("hymns")
+      .select("id,title,embed_html,sort_order")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    setHymns((data as HymnRow[]) ?? []);
+  }
+
+  useEffect(() => { refresh(); }, []);
+
+  function reset() {
+    setEditingId(null);
+    setTitle("");
+    setEmbedHtml("");
+    setSortOrder(0);
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    const t = title.trim();
+    const html = embedHtml.trim();
+    if (!t) { toast.error("Enter a hymn title"); return; }
+    if (!html) { toast.error("Paste the Rumble embed code"); return; }
+    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(html);
+    if (looksLikePageUrl) {
+      toast.error("That's a Rumble page URL, not an embed. Use Share → Embed and paste the <iframe> or <script>.", { duration: 9000 });
+      return;
+    }
+    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(html);
+    const hasScript = /<script[\s\S]*<\/script>/i.test(html);
+    if (!hasIframe && !hasScript) {
+      toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet.");
+      return;
+    }
+    setBusy(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("hymns")
+          .update({ title: t, embed_html: html, sort_order: sortOrder })
+          .eq("id", editingId);
+        if (error) throw error;
+        toast.success("Hymn updated");
+      } else {
+        const { error } = await supabase.from("hymns")
+          .insert({ title: t, embed_html: html, sort_order: sortOrder });
+        if (error) throw error;
+        toast.success("Hymn added");
+      }
+      reset();
+      refresh();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function edit(h: HymnRow) {
+    setEditingId(h.id);
+    setTitle(h.title);
+    setEmbedHtml(h.embed_html);
+    setSortOrder(h.sort_order);
+  }
+
+  async function remove(h: HymnRow) {
+    if (!confirm(`Delete hymn "${h.title}"?`)) return;
+    const { error } = await supabase.from("hymns").delete().eq("id", h.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deleted");
+    if (editingId === h.id) reset();
+    refresh();
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="font-display text-3xl">Christian Hymns</h2>
+
+      <form onSubmit={save} className="space-y-5 rounded-lg border border-border bg-card p-6">
+        <div className="grid sm:grid-cols-[1fr_120px] gap-4">
+          <div>
+            <label className="block text-sm mb-1.5">Hymn title</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200}
+              className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1.5">Sort order</label>
+            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+              className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm mb-1.5">Rumble embed code</label>
+          <textarea value={embedHtml} onChange={(e) => setEmbedHtml(e.target.value)} rows={5}
+            placeholder='<iframe class="rumble" src="https://rumble.com/embed/..." ...></iframe>'
+            className="w-full rounded-md bg-background border border-border px-3 py-2.5 font-mono text-xs" />
+        </div>
+        <div className="flex gap-3">
+          <button disabled={busy} className="rounded-md bg-primary text-primary-foreground font-medium px-5 py-2.5 hover:opacity-90 disabled:opacity-50">
+            {busy ? "Saving…" : editingId ? "Update hymn" : "Add hymn"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={reset} className="rounded-md border border-border px-5 py-2.5 hover:bg-accent">
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      <div>
+        <h3 className="font-display text-xl mb-3">All hymns ({hymns.length})</h3>
+        {hymns.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No hymns yet.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+            {hymns.map((h) => (
+              <li key={h.id} className="flex items-center justify-between gap-4 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{h.title}</p>
+                  <p className="text-xs text-muted-foreground">Order: {h.sort_order}</p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => edit(h)} className="text-sm text-primary hover:underline">Edit</button>
+                  <button onClick={() => remove(h)} className="text-sm text-destructive hover:underline">Delete</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
