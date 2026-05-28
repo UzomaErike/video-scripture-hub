@@ -6,6 +6,8 @@ import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import logoDark from "@/assets/logo-dark.png";
+import logoLight from "@/assets/logo-light.jpeg";
 
 type NavItem = {
   label: string;
@@ -73,9 +75,8 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md" style={{ background: "var(--gradient-gold)" }}>
-            <BookOpen className="h-5 w-5 text-background" />
-          </div>
+          <img src={logoDark} alt="VideoBible" className="h-9 w-9 rounded-md object-cover block light:hidden" />
+          <img src={logoLight} alt="VideoBible" className="h-9 w-9 rounded-md object-cover hidden light:block" />
           <span className="font-display text-2xl font-semibold tracking-tight">
             Video<span className="text-primary">Bible</span>
           </span>
