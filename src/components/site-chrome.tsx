@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import logoDark from "@/assets/logo-dark.png";
-import logoLight from "@/assets/logo-light.jpeg";
+import logoLight from "@/assets/logo-light.png";
 
 type NavItem = {
   label: string;
