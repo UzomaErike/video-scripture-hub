@@ -185,7 +185,7 @@ export function SiteFooter() {
             </span>
           </a>
           <a href="#" aria-label="Get it on Google Play" className="group inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-black border border-black/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
-            <img src={playLogo} alt="" aria-hidden className="h-10 w-10 object-contain transition-transform duration-300 group-hover:rotate-[5deg] group-hover:scale-110" />
+            <img src={playLogo} alt="" aria-hidden className="h-10 w-10 object-contain scale-150 transition-transform duration-300 group-hover:rotate-[5deg] group-hover:scale-[1.65]" />
             <span className="flex flex-col leading-tight text-left">
               <span className="text-[10px] opacity-70 transition-opacity duration-300 group-hover:opacity-100">GET IT ON</span>
               <span className="text-base font-semibold -mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">Google Play</span>
