@@ -177,17 +177,17 @@ export function SiteFooter() {
           Become a Video Bible Maker
         </button>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a href="#" aria-label="Download on the App Store" className="group inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
-            <img src={appleLogo} alt="" aria-hidden className="h-7 w-7 object-contain transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" />
+          <a href="#" aria-label="Download on the App Store" className="group inline-flex h-14 w-52 items-center justify-center gap-3 rounded-xl bg-black px-4 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
+            <img src={appleLogo} alt="" aria-hidden className="h-8 w-8 object-contain transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" />
             <span className="flex flex-col leading-tight text-left">
-              <span className="text-[10px] opacity-80 transition-opacity duration-300 group-hover:opacity-100">Download on the</span>
+              <span className="text-[10px] font-semibold opacity-80 transition-opacity duration-300 group-hover:opacity-100">Download on the</span>
               <span className="text-base font-semibold -mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">App Store</span>
             </span>
           </a>
-          <a href="#" aria-label="Get it on Google Play" className="group inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-black border border-black/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
-            <img src={playLogo} alt="" aria-hidden className="h-10 w-10 object-contain scale-150 transition-transform duration-300 group-hover:rotate-[5deg] group-hover:scale-[1.65]" />
+          <a href="#" aria-label="Get it on Google Play" className="group inline-flex h-14 w-52 items-center justify-center gap-3 rounded-xl bg-white px-4 text-black border border-black/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
+            <img src={playLogo} alt="" aria-hidden className="h-8 w-8 object-contain transition-transform duration-300 group-hover:rotate-[5deg] group-hover:scale-110" />
             <span className="flex flex-col leading-tight text-left">
-              <span className="text-[10px] opacity-70 transition-opacity duration-300 group-hover:opacity-100">GET IT ON</span>
+              <span className="text-[10px] font-semibold opacity-80 transition-opacity duration-300 group-hover:opacity-100">GET IT ON</span>
               <span className="text-base font-semibold -mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">Google Play</span>
             </span>
           </a>
