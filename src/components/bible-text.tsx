@@ -93,6 +93,9 @@ function ChapterVerses({
     queryKey: ["bible", translation, bookSlug, chapter],
     queryFn: async (): Promise<Verse[]> => {
       const res = await fetchChapter({ data: { translation, bookName, bookSlug, chapter } });
+      if ((!res.verses || res.verses.length === 0) && res.error) {
+        throw new Error(res.error);
+      }
       return res.verses;
     },
     staleTime: Infinity,
