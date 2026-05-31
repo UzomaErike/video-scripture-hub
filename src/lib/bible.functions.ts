@@ -128,21 +128,7 @@ export const getBibleChapter = createServerFn({ method: "GET" })
       return { verses: cached.verses as unknown as Verse[], cached: true };
     }
 
-    // 2. Fetch from upstream (with fallback for KJV rate limiting)
-    // AI-backed paths (NLT, or KJV fallback to NLT) require a signed-in user
-    // to prevent anonymous abuse of the AI gateway. KJV public API stays open.
-    const needsAuth = data.translation === "nlt";
-    if (needsAuth) {
-      const userId = await getAuthedUserId();
-      if (!userId) {
-        return {
-          verses: [] as Verse[],
-          cached: false,
-          error: "Sign in to load this chapter for the first time. Already-loaded chapters remain free to read.",
-        };
-      }
-    }
-
+    // 2. Fetch from upstream (with fallback for KJV rate limiting). Public access.
     let verses: Verse[];
     let usedFallback = false;
     try {
@@ -152,15 +138,6 @@ export const getBibleChapter = createServerFn({ method: "GET" })
           : await fetchNlt(data.bookName, data.chapter);
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
-      // Fallback uses AI (NLT) — require auth before triggering it.
-      const userId = needsAuth ? "ok" : await getAuthedUserId();
-      if (!userId) {
-        return {
-          verses: [] as Verse[],
-          cached: false,
-          error: "Scripture service is temporarily unavailable. Please try again shortly.",
-        };
-      }
       try {
         verses = await fetchNlt(data.bookName, data.chapter);
         usedFallback = data.translation !== "nlt";
