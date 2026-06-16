@@ -201,9 +201,14 @@ export const getOrGenerateVerseMeaning = createServerFn({ method: "POST" })
     if (selErr) throw new Error(selErr.message);
     if (existing) return existing as unknown as VerseMeaningRow;
 
+    // Cache miss: throttle AI generation per IP as a cost-abuse backstop.
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    enforceRateLimit("verse-meaning-gen", 10, 60 * 60 * 1000);
+
     const url = `https://www.videobible.com/meaning/${data.bookSlug}-${data.chapter}-${data.verse}`;
     const { html, status } = await fetchSourceHtml(url);
     const text = html && status < 400 ? normalizeSourceText(extractVisibleText(html)) : "";
+
 
     const generated = await generateMeaning(data.bookName, data.chapter, data.verse, text);
     const row = {

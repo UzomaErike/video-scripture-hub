@@ -129,6 +129,10 @@ export const getBibleChapter = createServerFn({ method: "GET" })
     }
 
     // 2. Fetch from upstream (with fallback for KJV rate limiting). Public access.
+    // Cache miss: throttle per IP as a cost-abuse backstop for the AI path.
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    enforceRateLimit("bible-chapter-gen", 15, 60 * 60 * 1000);
+
     let verses: Verse[];
     let usedFallback = false;
     try {
@@ -146,6 +150,7 @@ export const getBibleChapter = createServerFn({ method: "GET" })
         return { verses: [] as Verse[], cached: false, error: "Scripture service is temporarily unavailable. Please try again shortly." };
       }
     }
+
 
     // 3. Store (best-effort; ignore failures). Skip cache if we served a different translation as fallback.
     if (verses.length > 0 && !usedFallback) {

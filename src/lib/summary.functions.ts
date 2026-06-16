@@ -231,11 +231,16 @@ export const getOrGenerateSummary = createServerFn({ method: "POST" })
     if (selErr) throw new Error(selErr.message);
     if (existing) return existing as unknown as SummaryRow;
 
+    // Cache miss: throttle AI generation per IP as a cost-abuse backstop.
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    enforceRateLimit("summary-gen", 10, 60 * 60 * 1000);
+
     const url = `https://www.videobible.com/summary/${data.bookSlug}-${data.chapter}`;
     const { html, status } = await fetchSourceHtml(url);
     if (!html || status >= 400) {
       throw new Error(`Source not found (${status || 500})`);
     }
+
 
     const text = normalizeSourceText(extractVisibleText(html));
 
