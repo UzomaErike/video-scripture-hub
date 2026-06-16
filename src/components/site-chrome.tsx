@@ -165,6 +165,16 @@ export function SiteHeader() {
 export function SiteFooter() {
   const { setOpen } = useDonateDialog();
 
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (document.querySelector('script[data-monetag-zone="11153737"]')) return;
+    const s = document.createElement("script");
+    s.src = "https://nap5k.com/tag.min.js";
+    s.dataset.zone = "11153737";
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
+
   return (
     <footer className="border-t border-border/60 mt-24">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 flex flex-col items-center gap-6">
@@ -176,6 +186,7 @@ export function SiteFooter() {
           <span aria-hidden className="inline-block transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">🙏</span>
           Become a Video Bible Maker
         </button>
+
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a href="#" aria-label="Download on the App Store" className="group inline-flex h-14 w-52 items-center justify-center gap-3 rounded-xl bg-black px-4 text-white border border-white/10 transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 active:translate-y-0">
             <img src={appleLogo} alt="" aria-hidden className="h-8 w-8 object-contain transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-110" />
