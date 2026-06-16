@@ -176,6 +176,18 @@ export function SiteFooter() {
     document.body.appendChild(s);
   }, []);
 
+  // Push notifications (Monetag zone 11153738)
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (document.querySelector('script[data-monetag-zone="11153738"]')) return;
+    const s = document.createElement("script");
+    s.src = "https://5gvci.com/act/files/tag.min.js?z=11153738";
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.dataset.monetagZone = "11153738";
+    document.body.appendChild(s);
+  }, []);
+
 
 
   return (
