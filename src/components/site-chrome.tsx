@@ -165,17 +165,17 @@ export function SiteHeader() {
 export function SiteFooter() {
   const { setOpen } = useDonateDialog();
 
-  // In-Page Push banner (Monetag zone 11153737) — DISABLED per user request.
-  // To re-enable, uncomment the effect below.
-  // React.useEffect(() => {
-  //   if (typeof document === "undefined") return;
-  //   if (document.querySelector('script[data-monetag-zone="11153737"]')) return;
-  //   const s = document.createElement("script");
-  //   s.src = "https://nap5k.com/tag.min.js";
-  //   s.dataset.zone = "11153737";
-  //   s.async = true;
-  //   document.body.appendChild(s);
-  // }, []);
+  // Vignette banner (Monetag zone 11153742)
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (document.querySelector('script[data-monetag-zone="11153742"]')) return;
+    const s = document.createElement("script");
+    s.src = "https://n6wxm.com/vignette.min.js";
+    s.dataset.zone = "11153742";
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
+
 
 
   return (
