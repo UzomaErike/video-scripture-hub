@@ -189,6 +189,10 @@ function ChapterPage() {
           duration={duration}
         />
 
+        <AffiliatePicks seed={book.slug} />
+
+
+
       </main>
       <SiteFooter />
     </div>
