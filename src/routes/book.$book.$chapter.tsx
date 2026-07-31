@@ -7,6 +7,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmbedHtml } from "@/components/embed-html";
 import { RumblePlayer } from "@/components/rumble-player";
 import { BibleText } from "@/components/bible-text";
+import { AffiliatePicks } from "@/components/affiliate-picks";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/book/$book/$chapter")({
@@ -188,6 +189,10 @@ function ChapterPage() {
           currentTime={currentTime}
           duration={duration}
         />
+
+        <AffiliatePicks seed={book.slug} />
+
+
 
       </main>
       <SiteFooter />

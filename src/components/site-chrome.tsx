@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Settings, Clapperboard, Music } from "lucide-react";
+import { BookOpen, Menu, Headphones, FileText, MessageSquareQuote, Heart, Mail, Settings, Clapperboard, Music, ShoppingBag } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
@@ -24,6 +24,7 @@ const navItems: NavItem[] = [
   { label: "Verse Meanings", to: "/verse-meanings", icon: MessageSquareQuote },
   { label: "Christian Movies", to: "/christian-movies", icon: Clapperboard },
   { label: "Christian Hymns", to: "/christian-hymns", icon: Music },
+  { label: "Bible Resources", to: "/shop", icon: ShoppingBag },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "mailto:videobible.watch@gmail.com", icon: Mail },
   { label: "About Us", to: "/about", icon: BookOpen },

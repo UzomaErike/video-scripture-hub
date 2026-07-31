@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
@@ -30,6 +31,11 @@ import { Route as VerseMeaningsBookChapterVerseRouteImport } from './routes/vers
 const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
   id: '/studio-control-x9k2',
   path: '/studio-control-x9k2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/christian-movies/$id': typeof ChristianMoviesIdRouteRouteWithChildren
   '/christian-hymns/$id': typeof ChristianHymnsIdRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/christian-hymns/$id': typeof ChristianHymnsIdRoute
   '/christian-hymns': typeof ChristianHymnsIndexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
   '/christian-movies/$id': typeof ChristianMoviesIdRouteRouteWithChildren
   '/christian-hymns/$id': typeof ChristianHymnsIdRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/books'
     | '/settings'
+    | '/shop'
     | '/studio-control-x9k2'
     | '/christian-movies/$id'
     | '/christian-hymns/$id'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/books'
     | '/settings'
+    | '/shop'
     | '/studio-control-x9k2'
     | '/christian-hymns/$id'
     | '/christian-hymns'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/books'
     | '/settings'
+    | '/shop'
     | '/studio-control-x9k2'
     | '/christian-movies/$id'
     | '/christian-hymns/$id'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BooksRoute: typeof BooksRoute
   SettingsRoute: typeof SettingsRoute
+  ShopRoute: typeof ShopRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
   ChristianMoviesIdRouteRoute: typeof ChristianMoviesIdRouteRouteWithChildren
   ChristianHymnsIdRoute: typeof ChristianHymnsIdRoute
@@ -256,6 +269,13 @@ declare module '@tanstack/react-router' {
       path: '/studio-control-x9k2'
       fullPath: '/studio-control-x9k2'
       preLoaderRoute: typeof StudioControlX9k2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -394,6 +414,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BooksRoute: BooksRoute,
   SettingsRoute: SettingsRoute,
+  ShopRoute: ShopRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,
   ChristianMoviesIdRouteRoute: ChristianMoviesIdRouteRouteWithChildren,
   ChristianHymnsIdRoute: ChristianHymnsIdRoute,
@@ -409,13 +430,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
