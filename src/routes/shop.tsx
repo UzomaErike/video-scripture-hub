@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Home, ShoppingBag } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { categories, productsByCategory, amazonLink } from "@/lib/affiliate-products";
+import { categoryImages } from "@/lib/shop-images";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -57,26 +58,40 @@ function ShopPage() {
                 {cat.label}
               </h2>
               <p className="text-sm text-muted-foreground mt-1 mb-4">{cat.description}</p>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {productsByCategory(cat.id).map((p) => (
                   <li key={p.id}>
                     <a
                       href={amazonLink(p.keywords)}
                       target="_blank"
                       rel="nofollow sponsored noopener noreferrer"
-                      className="group flex h-full flex-col rounded-xl border border-border bg-card/60 p-4 transition hover:border-primary/60 hover:bg-accent/40"
+                      className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card/60 transition hover:border-primary/60 hover:bg-accent/40"
                     >
-                      <span className="font-medium leading-snug group-hover:text-primary transition">
-                        {p.title}
-                      </span>
-                      <span className="mt-1 text-sm text-muted-foreground flex-1">{p.blurb}</span>
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                        View on Amazon <ExternalLink className="h-3 w-3" />
-                      </span>
+                      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                        <img
+                          src={categoryImages[cat.id]}
+                          alt={`${cat.label} — ${p.title}`}
+                          width={1024}
+                          height={640}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
+                      </div>
+                      <div className="flex flex-1 flex-col p-4">
+                        <span className="font-medium leading-snug group-hover:text-primary transition">
+                          {p.title}
+                        </span>
+                        <span className="mt-1 text-sm text-muted-foreground flex-1">{p.blurb}</span>
+                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          View on Amazon <ExternalLink className="h-3 w-3" />
+                        </span>
+                      </div>
                     </a>
                   </li>
                 ))}
               </ul>
+
             </section>
           ))}
         </div>
