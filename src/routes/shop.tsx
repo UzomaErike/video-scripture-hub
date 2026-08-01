@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Home, ShoppingBag } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { categories, productsByCategory, amazonLink } from "@/lib/affiliate-products";
+import { categoryImages } from "@/lib/shop-images";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
