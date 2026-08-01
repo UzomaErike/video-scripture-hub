@@ -20,11 +20,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  { label: "Shop Bible Resources", to: "/shop", icon: ShoppingBag },
   { label: "Chapter Summaries", to: "/summary", icon: FileText },
   { label: "Verse Meanings", to: "/verse-meanings", icon: MessageSquareQuote },
   { label: "Christian Movies", to: "/christian-movies", icon: Clapperboard },
   { label: "Christian Hymns", to: "/christian-hymns", icon: Music },
-  { label: "Bible Resources", to: "/shop", icon: ShoppingBag },
   { label: "Support This Mission", href: "#", icon: Heart, dialogTrigger: true },
   { label: "Contact Us", href: "mailto:videobible.watch@gmail.com", icon: Mail },
   { label: "About Us", to: "/about", icon: BookOpen },
