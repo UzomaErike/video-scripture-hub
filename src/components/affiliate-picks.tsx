@@ -1,7 +1,6 @@
 import { ExternalLink, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { amazonLink, picksForSeed } from "@/lib/affiliate-products";
-import { categoryImages } from "@/lib/shop-images";
 
 /**
  * Contextual Amazon affiliate picks shown on chapter pages.
@@ -31,32 +30,19 @@ export function AffiliatePicks({ seed, heading }: { seed: string; heading?: stri
                 href={amazonLink(p.keywords)}
                 target="_blank"
                 rel="nofollow sponsored noopener noreferrer"
-                className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-background transition hover:border-primary/60 hover:bg-accent/40"
+                className="group flex h-full flex-col rounded-lg border border-border bg-background p-4 transition hover:border-primary/60 hover:bg-accent/40"
               >
-                <div className="aspect-[16/9] overflow-hidden bg-muted">
-                  <img
-                    src={categoryImages[p.category]}
-                    alt={p.title}
-                    width={1024}
-                    height={640}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col p-4">
-                  <span className="font-medium leading-snug group-hover:text-primary transition">
-                    {p.title}
-                  </span>
-                  <span className="mt-1 text-sm text-muted-foreground flex-1">{p.blurb}</span>
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                    View on Amazon <ExternalLink className="h-3 w-3" />
-                  </span>
-                </div>
+                <span className="font-medium leading-snug group-hover:text-primary transition">
+                  {p.title}
+                </span>
+                <span className="mt-1 text-sm text-muted-foreground flex-1">{p.blurb}</span>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                  View on Amazon <ExternalLink className="h-3 w-3" />
+                </span>
               </a>
             </li>
           ))}
         </ul>
-
 
         <p className="mt-4 text-xs text-muted-foreground">
           As an Amazon Associate, VideoBible earns from qualifying purchases. This
