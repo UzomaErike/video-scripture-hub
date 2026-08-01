@@ -1,6 +1,7 @@
 import { ExternalLink, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { amazonLink, picksForSeed } from "@/lib/affiliate-products";
+import { categoryImages } from "@/lib/shop-images";
 
 /**
  * Contextual Amazon affiliate picks shown on chapter pages.
