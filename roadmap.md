@@ -2,7 +2,7 @@
 
 ## Active Tasks
 - [x] Fix typecheck build errors (trailing slashes in `/book/$book/` Link paths)
-- [ ] Respond to user's donation platform question (PayPal alternatives)
+- [x] Respond to user's donation platform question (PayPal alternatives)
 
 ## Notes
-- Build errors predated the current work and must be resolved before finishing.
+- Build errors resolved; latest typecheck passes.
