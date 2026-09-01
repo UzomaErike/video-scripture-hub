@@ -108,7 +108,7 @@ function ChapterPage() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 flex-1">
         <div className="flex items-center mb-4">
-          <Link to="/book/$book/" params={{ book: book.slug }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
+          <Link to="/book/$book" params={{ book: book.slug }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
         </div>
@@ -117,7 +117,7 @@ function ChapterPage() {
           <span className="mx-2">›</span>
           <Link to="/books" className="hover:text-primary transition">Books</Link>
           <span className="mx-2">›</span>
-          <Link to="/book/$book/" params={{ book: book.slug }} className="hover:text-primary transition">{book.name}</Link>
+          <Link to="/book/$book" params={{ book: book.slug }} className="hover:text-primary transition">{book.name}</Link>
           <span className="mx-2">›</span>
           <span className="text-foreground">Chapter {chapter}</span>
         </nav>

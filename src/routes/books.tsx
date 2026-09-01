@@ -150,7 +150,7 @@ function BookCard({
 }) {
   return (
     <Link
-      to="/book/$book/"
+      to="/book/$book"
       params={{ book: book.slug }}
       className="group relative rounded-xl border border-border bg-card hover:border-primary/60 hover:bg-accent/40 transition-all overflow-hidden flex flex-col"
     >
