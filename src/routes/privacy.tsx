@@ -101,14 +101,14 @@ function PrivacyPage() {
           </p>
         </Section>
 
-        <Section title="Advertising (Google AdSense and Third-Party Vendors)">
+        <Section title="Advertising (Google AdSense)">
           <p>
-            We may display advertisements served by Google and other third-party vendors.
+            We display advertisements through Google AdSense.
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              Third-party vendors, including Google, use cookies to serve ads based on a user&rsquo;s prior
-              visits to this website or other websites.
+              Google AdSense uses cookies to serve ads based on your prior visits to this website or other
+              websites.
             </li>
             <li>
               Google&rsquo;s use of advertising cookies enables it and its partners to serve ads to you based
@@ -124,7 +124,7 @@ function PrivacyPage() {
               >
                 Google Ads Settings
               </a>
-              , or opt out of some third-party vendors&rsquo; use of cookies at{" "}
+              . You can also opt out of some third-party cookies used for advertising at{" "}
               <a
                 href="https://www.aboutads.info/choices/"
                 target="_blank"
@@ -136,8 +136,8 @@ function PrivacyPage() {
               .
             </li>
             <li>
-              Third-party ad networks may collect and use data under their own privacy policies. We do not
-              control those practices.
+              Google may collect and use data under its own privacy policy. We do not control Google&rsquo;s
+              data practices.
             </li>
           </ul>
           <p>
