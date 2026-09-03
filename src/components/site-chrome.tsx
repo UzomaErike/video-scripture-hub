@@ -202,7 +202,7 @@ export function SiteFooter() {
           <span aria-hidden className="opacity-40">·</span>
           <Link to="/about" className="hover:text-foreground transition-colors">About Us</Link>
           <span aria-hidden className="opacity-40">·</span>
-          <a href="mailto:videobible.watch@gmail.com" className="hover:text-foreground transition-colors">Contact Us</a>
+          <a href="mailto:videobible.watch@gmail.com?subject=VideoBible%20Enquiry" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Contact Us</a>
         </nav>
         <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} VideoBible.</p>
       </div>
