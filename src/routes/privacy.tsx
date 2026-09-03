@@ -178,7 +178,7 @@ function PrivacyPage() {
           </p>
         </Section>
 
-        <Section title="Children&rsquo;s Privacy">
+        <Section title="Children's Privacy">
           <p>
             The Service is not directed to children under 13 (or the minimum age in your jurisdiction), and we
             do not knowingly collect personal information from them. If you believe a child has provided us
