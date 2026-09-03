@@ -64,8 +64,10 @@ function PrivacyPage() {
 
         <Section title="Information We Collect">
           <p>
-            <span className="text-foreground font-medium">Information you provide.</span> If you create an
-            account or contact us, we may collect your email address and any details you choose to send us.
+            <span className="text-foreground font-medium">Information you provide.</span> VideoBible does not
+            require an account and we do not ask for your name, email address, or any other personal details
+            to use the Service. If you choose to email us directly, we will see your email address and message
+            only for as long as needed to reply.
           </p>
           <p>
             <span className="text-foreground font-medium">Usage and device information.</span> Like most
