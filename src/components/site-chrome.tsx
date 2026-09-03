@@ -197,6 +197,13 @@ export function SiteFooter() {
             </span>
           </a>
         </div>
+        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <span aria-hidden className="opacity-40">·</span>
+          <Link to="/about" className="hover:text-foreground transition-colors">About Us</Link>
+          <span aria-hidden className="opacity-40">·</span>
+          <a href="mailto:videobible.watch@gmail.com" className="hover:text-foreground transition-colors">Contact Us</a>
+        </nav>
         <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} VideoBible.</p>
       </div>
     </footer>
