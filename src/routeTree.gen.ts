@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -41,6 +42,11 @@ const ShopRoute = ShopRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/books': typeof BooksRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/studio-control-x9k2': typeof StudioControlX9k2Route
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/privacy'
     | '/settings'
     | '/shop'
     | '/studio-control-x9k2'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/privacy'
     | '/settings'
     | '/shop'
     | '/studio-control-x9k2'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/books'
+    | '/privacy'
     | '/settings'
     | '/shop'
     | '/studio-control-x9k2'
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BooksRoute: typeof BooksRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   StudioControlX9k2Route: typeof StudioControlX9k2Route
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -413,6 +433,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BooksRoute: BooksRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   StudioControlX9k2Route: StudioControlX9k2Route,
