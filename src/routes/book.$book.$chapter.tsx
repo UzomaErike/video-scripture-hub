@@ -167,6 +167,15 @@ function ChapterPage() {
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
+          ) : useYouTube ? (
+            <iframe
+              key={`${book.slug}-${chapter}-${youtubeId}`}
+              src={`https://www.youtube.com/embed/${youtubeId}`}
+              title={video?.title ?? `${book.name} ${chapter}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
           ) : rumbleId ? (
             <RumblePlayer
               key={`${book.slug}-${chapter}-${rumbleId}`}
