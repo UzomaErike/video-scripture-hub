@@ -240,25 +240,35 @@ function VideoManager({ email }: { email: string }) {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = embedHtml.trim();
-    if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
+    const yt = youtubeUrl.trim();
 
-    // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
-    // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
-    // the page slug is not the same as the embed ID.
-    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
-    if (looksLikePageUrl) {
-      toast.error(
-        "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
-        { duration: 9000 },
-      );
-      return;
-    }
+    if (provider === "youtube") {
+      if (!yt) { toast.error("Paste the YouTube link"); return; }
+      if (!/(youtube\.com|youtu\.be)/i.test(yt)) {
+        toast.error("That doesn't look like a YouTube link.");
+        return;
+      }
+    } else {
+      if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
 
-    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
-    const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
-    if (!hasIframe && !hasScript) {
-      toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
-      return;
+      // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
+      // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
+      // the page slug is not the same as the embed ID.
+      const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
+      if (looksLikePageUrl) {
+        toast.error(
+          "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
+          { duration: 9000 },
+        );
+        return;
+      }
+
+      const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
+      const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
+      if (!hasIframe && !hasScript) {
+        toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
+        return;
+      }
     }
     setBusy(true);
     try {
@@ -267,11 +277,13 @@ function VideoManager({ email }: { email: string }) {
           book_slug: bookSlug,
           chapter,
           title: title.trim() || null,
-          embed_html: embedHtml.trim(),
+          embed_html: trimmed,
+          youtube_url: yt || null,
+          provider,
         }, { onConflict: "book_slug,chapter" });
       if (error) throw error;
       toast.success(`Saved ${book.name} ${chapter}`);
-      setEditingHtml(embedHtml);
+      setEditingHtml(trimmed || yt);
       refresh();
     } catch (err: any) {
       toast.error(err.message);
@@ -286,9 +298,10 @@ function VideoManager({ email }: { email: string }) {
       .eq("book_slug", bookSlug).eq("chapter", chapter);
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
-    setEmbedHtml(""); setTitle(""); setEditingHtml("");
+    setEmbedHtml(""); setTitle(""); setEditingHtml(""); setYoutubeUrl(""); setProvider("rumble");
     refresh();
   }
+
 
   const filledSet = new Set(existing.map((v) => v.chapter));
 
