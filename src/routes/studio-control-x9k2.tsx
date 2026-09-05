@@ -174,6 +174,8 @@ function VideoManager({ email }: { email: string }) {
   const [chapter, setChapter] = useState(1);
   const [title, setTitle] = useState("");
   const [embedHtml, setEmbedHtml] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [provider, setProvider] = useState<"rumble" | "youtube">("rumble");
   const [busy, setBusy] = useState(false);
   const [existing, setExisting] = useState<VideoRow[]>([]);
   const [editingHtml, setEditingHtml] = useState("");
