@@ -191,12 +191,14 @@ function VideoManager({ email }: { email: string }) {
   }, [bookSlug]);
 
   useEffect(() => {
-    supabase.from("videos").select("embed_html,title")
+    supabase.from("videos").select("embed_html,title,provider,youtube_url")
       .eq("book_slug", bookSlug).eq("chapter", chapter).maybeSingle()
       .then(({ data }) => {
-        setEditingHtml(data?.embed_html ?? "");
+        setEditingHtml(data ? (data.embed_html || data.youtube_url || "") : "");
         setTitle(data?.title ?? "");
         setEmbedHtml(data?.embed_html ?? "");
+        setYoutubeUrl(data?.youtube_url ?? "");
+        setProvider((data?.provider as "rumble" | "youtube") ?? "rumble");
       });
   }, [bookSlug, chapter]);
 
