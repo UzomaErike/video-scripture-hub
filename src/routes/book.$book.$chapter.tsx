@@ -56,7 +56,7 @@ function ChapterPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
-        .select("embed_html,title")
+        .select("embed_html,title,provider,youtube_url")
         .eq("book_slug", book.slug)
         .eq("chapter", chapter)
         .maybeSingle();
@@ -77,6 +77,17 @@ function ChapterPage() {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const youtubeId = (() => {
+    const src = video?.youtube_url ?? "";
+    if (!src) return null;
+    return (
+      src.match(/youtu\.be\/([\w-]{6,})/i)?.[1] ??
+      src.match(/[?&]v=([\w-]{6,})/i)?.[1] ??
+      src.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/i)?.[1] ??
+      null
+    );
+  })();
+  const useYouTube = video?.provider === "youtube" && Boolean(youtubeId);
   const rumbleId =
     video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ??
     video?.embed_html?.match(/id="rumble_(v[a-z0-9]+)"/i)?.[1] ??
@@ -84,6 +95,7 @@ function ChapterPage() {
     null;
   const [hasEmbeddedVideo, setHasEmbeddedVideo] = useState(false);
   const hasActiveVideo = Boolean(rumbleId) || hasEmbeddedVideo;
+
 
   const navigate = useNavigate();
   const advancedRef = useRef(false);
