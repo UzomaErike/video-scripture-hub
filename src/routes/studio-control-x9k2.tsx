@@ -174,6 +174,8 @@ function VideoManager({ email }: { email: string }) {
   const [chapter, setChapter] = useState(1);
   const [title, setTitle] = useState("");
   const [embedHtml, setEmbedHtml] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [provider, setProvider] = useState<"rumble" | "youtube">("rumble");
   const [busy, setBusy] = useState(false);
   const [existing, setExisting] = useState<VideoRow[]>([]);
   const [editingHtml, setEditingHtml] = useState("");
@@ -189,12 +191,14 @@ function VideoManager({ email }: { email: string }) {
   }, [bookSlug]);
 
   useEffect(() => {
-    supabase.from("videos").select("embed_html,title")
+    supabase.from("videos").select("embed_html,title,provider,youtube_url")
       .eq("book_slug", bookSlug).eq("chapter", chapter).maybeSingle()
       .then(({ data }) => {
-        setEditingHtml(data?.embed_html ?? "");
+        setEditingHtml(data ? (data.embed_html || data.youtube_url || "") : "");
         setTitle(data?.title ?? "");
         setEmbedHtml(data?.embed_html ?? "");
+        setYoutubeUrl(data?.youtube_url ?? "");
+        setProvider((data?.provider as "rumble" | "youtube") ?? "rumble");
       });
   }, [bookSlug, chapter]);
 
@@ -236,25 +240,35 @@ function VideoManager({ email }: { email: string }) {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = embedHtml.trim();
-    if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
+    const yt = youtubeUrl.trim();
 
-    // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
-    // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
-    // the page slug is not the same as the embed ID.
-    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
-    if (looksLikePageUrl) {
-      toast.error(
-        "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
-        { duration: 9000 },
-      );
-      return;
-    }
+    if (provider === "youtube") {
+      if (!yt) { toast.error("Paste the YouTube link"); return; }
+      if (!/(youtube\.com|youtu\.be)/i.test(yt)) {
+        toast.error("That doesn't look like a YouTube link.");
+        return;
+      }
+    } else {
+      if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
 
-    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
-    const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
-    if (!hasIframe && !hasScript) {
-      toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
-      return;
+      // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
+      // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
+      // the page slug is not the same as the embed ID.
+      const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
+      if (looksLikePageUrl) {
+        toast.error(
+          "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
+          { duration: 9000 },
+        );
+        return;
+      }
+
+      const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
+      const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
+      if (!hasIframe && !hasScript) {
+        toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
+        return;
+      }
     }
     setBusy(true);
     try {
@@ -263,11 +277,13 @@ function VideoManager({ email }: { email: string }) {
           book_slug: bookSlug,
           chapter,
           title: title.trim() || null,
-          embed_html: embedHtml.trim(),
+          embed_html: trimmed,
+          youtube_url: yt || null,
+          provider,
         }, { onConflict: "book_slug,chapter" });
       if (error) throw error;
       toast.success(`Saved ${book.name} ${chapter}`);
-      setEditingHtml(embedHtml);
+      setEditingHtml(trimmed || yt);
       refresh();
     } catch (err: any) {
       toast.error(err.message);
@@ -282,9 +298,10 @@ function VideoManager({ email }: { email: string }) {
       .eq("book_slug", bookSlug).eq("chapter", chapter);
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
-    setEmbedHtml(""); setTitle(""); setEditingHtml("");
+    setEmbedHtml(""); setTitle(""); setEditingHtml(""); setYoutubeUrl(""); setProvider("rumble");
     refresh();
   }
+
 
   const filledSet = new Set(existing.map((v) => v.chapter));
 
@@ -326,8 +343,32 @@ function VideoManager({ email }: { email: string }) {
           <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200}
             className="w-full rounded-md bg-background border border-border px-3 py-2.5" />
         </div>
+        <div className="rounded-md border border-border bg-background p-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-sm">Player shown on the site</p>
+              <p className="text-xs text-muted-foreground">Switch between the Rumble and YouTube version of this chapter.</p>
+            </div>
+            <div className="inline-flex rounded-md border border-border overflow-hidden">
+              {(["rumble", "youtube"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setProvider(p)}
+                  className={`px-4 py-2 text-sm capitalize transition ${
+                    provider === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {p === "rumble" ? "Rumble" : "YouTube"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <div>
-          <label className="block text-sm mb-1.5">Rumble embed code</label>
+          <label className="block text-sm mb-1.5">
+            Rumble embed code {provider === "rumble" && <span className="text-primary text-xs">(active)</span>}
+          </label>
           <p className="text-xs text-muted-foreground mb-2">
             On Rumble click <span className="text-foreground">Share → Embed</span> (not Share → URL), then paste the full <code>&lt;iframe&gt;</code> or monetized <code>&lt;script&gt;</code> snippet. A plain <code>rumble.com/...html</code> page URL will not play here.
           </p>
@@ -335,6 +376,18 @@ function VideoManager({ email }: { email: string }) {
             placeholder='<iframe class="rumble" src="https://rumble.com/embed/..." ...></iframe>  — or —  <script>...</script><div id="rumble_..."></div><script>Rumble("play",{...})</script>'
             className="w-full rounded-md bg-background border border-border px-3 py-2.5 font-mono text-xs" />
         </div>
+        <div>
+          <label className="block text-sm mb-1.5">
+            YouTube link {provider === "youtube" && <span className="text-primary text-xs">(active)</span>}
+          </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Paste the normal video link, e.g. <code>https://www.youtube.com/watch?v=…</code>, <code>https://youtu.be/…</code> or a YouTube embed <code>&lt;iframe&gt;</code>.
+          </p>
+          <input value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="w-full rounded-md bg-background border border-border px-3 py-2.5 font-mono text-xs" />
+        </div>
+
         <div className="flex gap-3">
           <button disabled={busy} className="rounded-md bg-primary text-primary-foreground font-medium px-5 py-2.5 hover:opacity-90 disabled:opacity-50">
             {busy ? "Saving…" : editingHtml ? "Update video" : "Add video"}

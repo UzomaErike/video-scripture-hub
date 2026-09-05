@@ -272,17 +272,21 @@ export type Database = {
           created_at: string
           embed_html: string
           id: string
+          provider: string
           title: string | null
           updated_at: string
+          youtube_url: string | null
         }
         Insert: {
           book_slug: string
           chapter: number
           created_at?: string
-          embed_html: string
+          embed_html?: string
           id?: string
+          provider?: string
           title?: string | null
           updated_at?: string
+          youtube_url?: string | null
         }
         Update: {
           book_slug?: string
@@ -290,8 +294,10 @@ export type Database = {
           created_at?: string
           embed_html?: string
           id?: string
+          provider?: string
           title?: string | null
           updated_at?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
