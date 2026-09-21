@@ -137,6 +137,39 @@ export type Database = {
         }
         Relationships: []
       }
+      job_state: {
+        Row: {
+          job_name: string
+          last_error: string | null
+          last_run_at: string | null
+          lease_until: string | null
+          pause_reason: string | null
+          processed_count: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          job_name: string
+          last_error?: string | null
+          last_run_at?: string | null
+          lease_until?: string | null
+          pause_reason?: string | null
+          processed_count?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          job_name?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          lease_until?: string | null
+          pause_reason?: string | null
+          processed_count?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       movie_episodes: {
         Row: {
           created_at: string
