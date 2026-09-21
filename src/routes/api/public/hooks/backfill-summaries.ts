@@ -5,7 +5,7 @@ import { generateAndCacheSummary, GatewayBlockedError } from "@/lib/summary.func
 
 const JOB = "summary-backfill";
 /** Bounded work per run. ~1,189 chapters total, so a full pass takes ~2 days. */
-const BATCH_SIZE = 25;
+const BATCH_SIZE = 1;
 /** Lease length: a crashed run can't block the job forever. */
 const LEASE_MINUTES = 50;
 
