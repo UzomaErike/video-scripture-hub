@@ -136,13 +136,25 @@ function buildFallbackSummary(bookName: string, chapter: number, sourceText: str
   };
 }
 
+/** Thrown when the AI gateway blocks us (credits, policy, rate limit). */
+export class GatewayBlockedError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "GatewayBlockedError";
+  }
+}
+
 async function generateSummary(
   bookName: string,
   chapter: number,
   sourceText: string,
+  strict = false,
 ): Promise<Omit<SummaryRow, "book_slug" | "chapter">> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) {
+    if (strict) throw new GatewayBlockedError(401, "Missing LOVABLE_API_KEY");
     return buildFallbackSummary(bookName, chapter, sourceText);
   }
 
