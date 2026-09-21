@@ -205,12 +205,16 @@ Use 3-6 sections covering the main narrative beats. Rephrase everything in fresh
     });
 
     if (!res.ok) {
+      if (strict) {
+        throw new GatewayBlockedError(res.status, `AI gateway returned ${res.status}`);
+      }
       return buildFallbackSummary(bookName, chapter, sourceText);
     }
 
     const json = await res.json();
     const content = json.choices?.[0]?.message?.content;
     if (!content) {
+      if (strict) throw new GatewayBlockedError(200, "Empty AI response");
       return buildFallbackSummary(bookName, chapter, sourceText);
     }
 
