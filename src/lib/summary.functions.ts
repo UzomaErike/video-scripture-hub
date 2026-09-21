@@ -136,13 +136,25 @@ function buildFallbackSummary(bookName: string, chapter: number, sourceText: str
   };
 }
 
+/** Thrown when the AI gateway blocks us (credits, policy, rate limit). */
+export class GatewayBlockedError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "GatewayBlockedError";
+  }
+}
+
 async function generateSummary(
   bookName: string,
   chapter: number,
   sourceText: string,
+  strict = false,
 ): Promise<Omit<SummaryRow, "book_slug" | "chapter">> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) {
+    if (strict) throw new GatewayBlockedError(401, "Missing LOVABLE_API_KEY");
     return buildFallbackSummary(bookName, chapter, sourceText);
   }
 
@@ -193,12 +205,16 @@ Use 3-6 sections covering the main narrative beats. Rephrase everything in fresh
     });
 
     if (!res.ok) {
+      if (strict) {
+        throw new GatewayBlockedError(res.status, `AI gateway returned ${res.status}`);
+      }
       return buildFallbackSummary(bookName, chapter, sourceText);
     }
 
     const json = await res.json();
     const content = json.choices?.[0]?.message?.content;
     if (!content) {
+      if (strict) throw new GatewayBlockedError(200, "Empty AI response");
       return buildFallbackSummary(bookName, chapter, sourceText);
     }
 
@@ -213,9 +229,39 @@ Use 3-6 sections covering the main narrative beats. Rephrase everything in fresh
       connection_to_jesus: parsed.connection_to_jesus ?? null,
       contemporary_relevance: parsed.contemporary_relevance ?? null,
     };
-  } catch {
+  } catch (err) {
+    if (err instanceof GatewayBlockedError) throw err;
+    if (strict) throw err;
     return buildFallbackSummary(bookName, chapter, sourceText);
   }
+}
+
+/**
+ * Fetch + rephrase + cache a single chapter summary. Used by the hourly
+ * backfill job. Throws GatewayBlockedError when the AI gateway blocks us so the
+ * caller can trip its circuit breaker instead of caching junk.
+ */
+export async function generateAndCacheSummary(
+  bookSlug: string,
+  bookName: string,
+  chapter: number,
+): Promise<void> {
+  const url = `https://www.videobible.com/summary/${bookSlug}-${chapter}`;
+  let text = "";
+  try {
+    const { html, status } = await fetchSourceHtml(url);
+    if (html && status < 400) text = normalizeSourceText(extractVisibleText(html));
+  } catch {
+    text = "";
+  }
+
+  const generated = await generateSummary(bookName, chapter, text, true);
+
+  const { error } = await supabaseAdmin
+    .from("chapter_summaries")
+    .upsert({ book_slug: bookSlug, chapter, ...generated }, { onConflict: "book_slug,chapter" });
+
+  if (error) throw new Error(error.message);
 }
 
 export const getOrGenerateSummary = createServerFn({ method: "POST" })

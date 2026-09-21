@@ -28,6 +28,7 @@ import { Route as SummaryBookChapterRouteImport } from './routes/summary.$book.$
 import { Route as ChristianMoviesIdEpisodeIdRouteImport } from './routes/christian-movies.$id.$episodeId'
 import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapter'
 import { Route as VerseMeaningsBookChapterVerseRouteImport } from './routes/verse-meanings.$book.$chapter.$verse'
+import { Route as ApiPublicHooksBackfillSummariesRouteImport } from './routes/api/public/hooks/backfill-summaries'
 
 const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
   id: '/studio-control-x9k2',
@@ -126,6 +127,12 @@ const VerseMeaningsBookChapterVerseRoute =
     path: '/verse-meanings/$book/$chapter/$verse',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksBackfillSummariesRoute =
+  ApiPublicHooksBackfillSummariesRouteImport.update({
+    id: '/api/public/hooks/backfill-summaries',
+    path: '/api/public/hooks/backfill-summaries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
   '/christian-movies/$id/': typeof ChristianMoviesIdIndexRoute
+  '/api/public/hooks/backfill-summaries': typeof ApiPublicHooksBackfillSummariesRoute
   '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRoutesByTo {
@@ -166,6 +174,7 @@ export interface FileRoutesByTo {
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book': typeof BookBookIndexRoute
   '/christian-movies/$id': typeof ChristianMoviesIdIndexRoute
+  '/api/public/hooks/backfill-summaries': typeof ApiPublicHooksBackfillSummariesRoute
   '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRoutesById {
@@ -188,6 +197,7 @@ export interface FileRoutesById {
   '/summary/$book/$chapter': typeof SummaryBookChapterRoute
   '/book/$book/': typeof BookBookIndexRoute
   '/christian-movies/$id/': typeof ChristianMoviesIdIndexRoute
+  '/api/public/hooks/backfill-summaries': typeof ApiPublicHooksBackfillSummariesRoute
   '/verse-meanings/$book/$chapter/$verse': typeof VerseMeaningsBookChapterVerseRoute
 }
 export interface FileRouteTypes {
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/summary/$book/$chapter'
     | '/book/$book/'
     | '/christian-movies/$id/'
+    | '/api/public/hooks/backfill-summaries'
     | '/verse-meanings/$book/$chapter/$verse'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/summary/$book/$chapter'
     | '/book/$book'
     | '/christian-movies/$id'
+    | '/api/public/hooks/backfill-summaries'
     | '/verse-meanings/$book/$chapter/$verse'
   id:
     | '__root__'
@@ -252,6 +264,7 @@ export interface FileRouteTypes {
     | '/summary/$book/$chapter'
     | '/book/$book/'
     | '/christian-movies/$id/'
+    | '/api/public/hooks/backfill-summaries'
     | '/verse-meanings/$book/$chapter/$verse'
   fileRoutesById: FileRoutesById
 }
@@ -272,6 +285,7 @@ export interface RootRouteChildren {
   BookBookChapterRoute: typeof BookBookChapterRoute
   SummaryBookChapterRoute: typeof SummaryBookChapterRoute
   BookBookIndexRoute: typeof BookBookIndexRoute
+  ApiPublicHooksBackfillSummariesRoute: typeof ApiPublicHooksBackfillSummariesRoute
   VerseMeaningsBookChapterVerseRoute: typeof VerseMeaningsBookChapterVerseRoute
 }
 
@@ -410,6 +424,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerseMeaningsBookChapterVerseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/backfill-summaries': {
+      id: '/api/public/hooks/backfill-summaries'
+      path: '/api/public/hooks/backfill-summaries'
+      fullPath: '/api/public/hooks/backfill-summaries'
+      preLoaderRoute: typeof ApiPublicHooksBackfillSummariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -446,6 +467,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookBookChapterRoute: BookBookChapterRoute,
   SummaryBookChapterRoute: SummaryBookChapterRoute,
   BookBookIndexRoute: BookBookIndexRoute,
+  ApiPublicHooksBackfillSummariesRoute: ApiPublicHooksBackfillSummariesRoute,
   VerseMeaningsBookChapterVerseRoute: VerseMeaningsBookChapterVerseRoute,
 }
 export const routeTree = rootRouteImport

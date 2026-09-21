@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789994606320,
+      "tag": "0000_create_summary_backfill_job_state",
+      "breakpoints": true
+    }
+  ]
+}
