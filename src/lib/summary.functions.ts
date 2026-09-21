@@ -229,9 +229,39 @@ Use 3-6 sections covering the main narrative beats. Rephrase everything in fresh
       connection_to_jesus: parsed.connection_to_jesus ?? null,
       contemporary_relevance: parsed.contemporary_relevance ?? null,
     };
-  } catch {
+  } catch (err) {
+    if (err instanceof GatewayBlockedError) throw err;
+    if (strict) throw err;
     return buildFallbackSummary(bookName, chapter, sourceText);
   }
+}
+
+/**
+ * Fetch + rephrase + cache a single chapter summary. Used by the hourly
+ * backfill job. Throws GatewayBlockedError when the AI gateway blocks us so the
+ * caller can trip its circuit breaker instead of caching junk.
+ */
+export async function generateAndCacheSummary(
+  bookSlug: string,
+  bookName: string,
+  chapter: number,
+): Promise<void> {
+  const url = `https://www.videobible.com/summary/${bookSlug}-${chapter}`;
+  let text = "";
+  try {
+    const { html, status } = await fetchSourceHtml(url);
+    if (html && status < 400) text = normalizeSourceText(extractVisibleText(html));
+  } catch {
+    text = "";
+  }
+
+  const generated = await generateSummary(bookName, chapter, text, true);
+
+  const { error } = await supabaseAdmin
+    .from("chapter_summaries")
+    .upsert({ book_slug: bookSlug, chapter, ...generated }, { onConflict: "book_slug,chapter" });
+
+  if (error) throw new Error(error.message);
 }
 
 export const getOrGenerateSummary = createServerFn({ method: "POST" })
