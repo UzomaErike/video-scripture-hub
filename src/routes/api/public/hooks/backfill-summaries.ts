@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/public/hooks/backfill-summaries")({
         const key =
           request.headers.get("apikey") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-        if (!key || key !== process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]) {
+        if (!key || key !== import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"]) {
           return json({ error: "Unauthorized" }, 401);
         }
 
