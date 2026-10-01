@@ -34,6 +34,70 @@ async function fetchKjv(bookName: string, chapter: number): Promise<Verse[]> {
   throw new Error("KJV API rate limited (429)");
 }
 
+function nltRefSlug(bookName: string) {
+  // NLT API uses dotted refs like "1Samuel.3.1-50" — strip spaces/punct.
+  return bookName.replace(/\s+/g, "").replace(/[^A-Za-z0-9]/g, "");
+}
+
+function parseNltVerses(html: string): Verse[] {
+  const verses: Verse[] = [];
+  const re = /<verse_export[^>]*vn="(\d+)"[^>]*>([\s\S]*?)<\/verse_export>/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const num = parseInt(m[1], 10);
+    let inner = m[2];
+    inner = inner.replace(/<a class="a-tn"[\s\S]*?<\/span>/g, "");
+    inner = inner.replace(/<span class="tn"[\s\S]*?<\/span>/g, "");
+    inner = inner.replace(/<span class="vn">\d+<\/span>/g, "");
+    const text = inner
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&ldquo;|&rdquo;/g, '"')
+      .replace(/&lsquo;|&rsquo;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (text) verses.push({ verse: num, text });
+  }
+  return verses;
+}
+
+// Official NLT API (api.nlt.to) using the registered key. Paginates in
+// 50-verse windows until the chapter is complete.
+async function fetchNltApi(bookName: string, chapter: number): Promise<Verse[]> {
+  const key = process.env.NLT_API_KEY;
+  if (!key) throw new Error("NLT_API_KEY is not configured");
+
+  const slug = nltRefSlug(bookName);
+  const all = new Map<number, string>();
+  for (let start = 1; start <= 200; start += 50) {
+    const end = start + 49;
+    const ref = `${slug}.${chapter}.${start}-${end}`;
+    const url = `https://api.nlt.to/api/passages?ref=${encodeURIComponent(ref)}&version=NLT&key=${key}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (start === 1) throw new Error(`NLT API error: ${res.status}`);
+      break;
+    }
+    const html = await res.text();
+    const verses = parseNltVerses(html);
+    const before = all.size;
+    for (const v of verses) {
+      if (v.verse >= start && v.verse <= end && !all.has(v.verse)) {
+        all.set(v.verse, v.text);
+      }
+    }
+    if (all.size === before) break; // no new verses → chapter done
+  }
+
+  if (all.size === 0) throw new Error("NLT API returned no verses");
+  return Array.from(all.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([verse, text]) => ({ verse, text }));
+}
+
 async function fetchNlt(bookName: string, chapter: number): Promise<Verse[]> {
   const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -136,10 +200,16 @@ export const getBibleChapter = createServerFn({ method: "GET" })
     let verses: Verse[];
     let usedFallback = false;
     try {
-      verses =
-        data.translation === "kjv"
-          ? await fetchKjv(data.bookName, data.chapter)
-          : await fetchNlt(data.bookName, data.chapter);
+      if (data.translation === "kjv") {
+        verses = await fetchKjv(data.bookName, data.chapter);
+      } else {
+        try {
+          verses = await fetchNltApi(data.bookName, data.chapter);
+        } catch (nltErr) {
+          console.error("NLT API fetch failed, falling back to AI:", nltErr);
+          verses = await fetchNlt(data.bookName, data.chapter);
+        }
+      }
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
       try {
