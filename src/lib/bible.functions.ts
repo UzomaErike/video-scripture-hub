@@ -200,10 +200,16 @@ export const getBibleChapter = createServerFn({ method: "GET" })
     let verses: Verse[];
     let usedFallback = false;
     try {
-      verses =
-        data.translation === "kjv"
-          ? await fetchKjv(data.bookName, data.chapter)
-          : await fetchNlt(data.bookName, data.chapter);
+      if (data.translation === "kjv") {
+        verses = await fetchKjv(data.bookName, data.chapter);
+      } else {
+        try {
+          verses = await fetchNltApi(data.bookName, data.chapter);
+        } catch (nltErr) {
+          console.error("NLT API fetch failed, falling back to AI:", nltErr);
+          verses = await fetchNlt(data.bookName, data.chapter);
+        }
+      }
     } catch (err) {
       console.error(`Primary fetch failed for ${data.translation} ${data.bookName} ${data.chapter}:`, err);
       try {
