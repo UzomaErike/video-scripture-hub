@@ -34,7 +34,7 @@ export const Route = createFileRoute("/summary/$book/$chapter")({
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
         <div>
-          <p className="text-destructive mb-3">{error.message}</p>
+          <p className="text-destructive mb-3">{error instanceof Error ? error.message : "This summary could not be loaded."}</p>
           <button onClick={() => { router.invalidate(); reset(); }} className="text-primary underline">Retry</button>
         </div>
       </div>
