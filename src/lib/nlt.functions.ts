@@ -24,6 +24,9 @@ function parseVerses(html: string): NltVerse[] {
   while ((m = re.exec(html)) !== null) {
     const num = parseInt(m[1], 10);
     let inner = m[2];
+    // The API nests the chapter title and section heading inside verse 1.
+    // They are editorial headings, not part of the Scripture text.
+    inner = inner.replace(/<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi, "");
     // Drop translator notes / footnote markers
     inner = inner.replace(/<a class="a-tn"[\s\S]*?<\/span>/g, "");
     inner = inner.replace(/<span class="tn"[\s\S]*?<\/span>/g, "");

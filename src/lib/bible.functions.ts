@@ -46,6 +46,9 @@ function parseNltVerses(html: string): Verse[] {
   while ((m = re.exec(html)) !== null) {
     const num = parseInt(m[1], 10);
     let inner = m[2];
+    // The API nests the chapter title and section heading inside verse 1.
+    // They are editorial headings, not part of the Scripture text.
+    inner = inner.replace(/<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi, "");
     inner = inner.replace(/<a class="a-tn"[\s\S]*?<\/span>/g, "");
     inner = inner.replace(/<span class="tn"[\s\S]*?<\/span>/g, "");
     inner = inner.replace(/<span class="vn">\d+<\/span>/g, "");
@@ -62,6 +65,14 @@ function parseNltVerses(html: string): Verse[] {
     if (text) verses.push({ verse: num, text });
   }
   return verses;
+}
+
+function hasNltHeadingInFirstVerse(verses: Verse[], bookName: string, chapter: number) {
+  const firstVerse = verses.find((verse) => verse.verse === 1);
+  if (!firstVerse) return false;
+  const normalizedText = firstVerse.text.replace(/\s+/g, " ").trim().toLowerCase();
+  const chapterHeading = `${bookName} ${chapter}`.toLowerCase();
+  return normalizedText === chapterHeading || normalizedText.startsWith(`${chapterHeading} `);
 }
 
 // Official NLT API (api.nlt.to) using the registered key. Paginates in
@@ -189,7 +200,15 @@ export const getBibleChapter = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (cached && Array.isArray(cached.verses) && (cached.verses as unknown as Verse[]).length > 0) {
-      return { verses: cached.verses as unknown as Verse[], cached: true };
+      const cachedVerses = cached.verses as unknown as Verse[];
+      // Older NLT cache entries may contain API headings in verse 1. Refetching
+      // replaces those entries with clean verse text through the upsert below.
+      if (
+        data.translation !== "nlt" ||
+        !hasNltHeadingInFirstVerse(cachedVerses, data.bookName, data.chapter)
+      ) {
+        return { verses: cachedVerses, cached: true };
+      }
     }
 
     // 2. Fetch from upstream (with fallback for KJV rate limiting). Public access.
