@@ -9,50 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as BooksRouteImport } from './routes/books'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudioControlX9k2RouteImport } from './routes/studio-control-x9k2'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as BooksRouteImport } from './routes/books'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerseMeaningsIndexRouteImport } from './routes/verse-meanings.index'
+import { Route as SummaryIndexRouteImport } from './routes/summary.index'
+import { Route as ChristianMoviesIndexRouteImport } from './routes/christian-movies.index'
 import { Route as ChristianHymnsIndexRouteImport } from './routes/christian-hymns.index'
 import { Route as ChristianHymnsIdRouteImport } from './routes/christian-hymns.$id'
-import { Route as ChristianMoviesIndexRouteImport } from './routes/christian-movies.index'
 import { Route as ChristianMoviesIdRouteRouteImport } from './routes/christian-movies.$id.route'
-import { Route as SummaryIndexRouteImport } from './routes/summary.index'
-import { Route as VerseMeaningsIndexRouteImport } from './routes/verse-meanings.index'
-import { Route as BookBookIndexRouteImport } from './routes/book.$book.index'
-import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapter'
 import { Route as ChristianMoviesIdIndexRouteImport } from './routes/christian-movies.$id.index'
-import { Route as ChristianMoviesIdEpisodeIdRouteImport } from './routes/christian-movies.$id.$episodeId'
+import { Route as BookBookIndexRouteImport } from './routes/book.$book.index'
 import { Route as SummaryBookChapterRouteImport } from './routes/summary.$book.$chapter'
-import { Route as ApiPublicHooksBackfillSummariesRouteImport } from './routes/api/public/hooks/backfill-summaries'
+import { Route as ChristianMoviesIdEpisodeIdRouteImport } from './routes/christian-movies.$id.$episodeId'
+import { Route as BookBookChapterRouteImport } from './routes/book.$book.$chapter'
 import { Route as VerseMeaningsBookChapterVerseRouteImport } from './routes/verse-meanings.$book.$chapter.$verse'
+import { Route as ApiPublicHooksBackfillSummariesRouteImport } from './routes/api/public/hooks/backfill-summaries'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BooksRoute = BooksRouteImport.update({
-  id: '/books',
-  path: '/books',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
+  id: '/studio-control-x9k2',
+  path: '/studio-control-x9k2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -60,9 +40,44 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudioControlX9k2Route = StudioControlX9k2RouteImport.update({
-  id: '/studio-control-x9k2',
-  path: '/studio-control-x9k2',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerseMeaningsIndexRoute = VerseMeaningsIndexRouteImport.update({
+  id: '/verse-meanings/',
+  path: '/verse-meanings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummaryIndexRoute = SummaryIndexRouteImport.update({
+  id: '/summary/',
+  path: '/summary/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChristianMoviesIndexRoute = ChristianMoviesIndexRouteImport.update({
+  id: '/christian-movies/',
+  path: '/christian-movies/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChristianHymnsIndexRoute = ChristianHymnsIndexRouteImport.update({
@@ -75,34 +90,9 @@ const ChristianHymnsIdRoute = ChristianHymnsIdRouteImport.update({
   path: '/christian-hymns/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChristianMoviesIndexRoute = ChristianMoviesIndexRouteImport.update({
-  id: '/christian-movies/',
-  path: '/christian-movies/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ChristianMoviesIdRouteRoute = ChristianMoviesIdRouteRouteImport.update({
   id: '/christian-movies/$id',
   path: '/christian-movies/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SummaryIndexRoute = SummaryIndexRouteImport.update({
-  id: '/summary/',
-  path: '/summary/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VerseMeaningsIndexRoute = VerseMeaningsIndexRouteImport.update({
-  id: '/verse-meanings/',
-  path: '/verse-meanings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookBookIndexRoute = BookBookIndexRouteImport.update({
-  id: '/book/$book/',
-  path: '/book/$book/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookBookChapterRoute = BookBookChapterRouteImport.update({
-  id: '/book/$book/$chapter',
-  path: '/book/$book/$chapter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChristianMoviesIdIndexRoute = ChristianMoviesIdIndexRouteImport.update({
@@ -110,27 +100,37 @@ const ChristianMoviesIdIndexRoute = ChristianMoviesIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ChristianMoviesIdRouteRoute,
 } as any)
+const BookBookIndexRoute = BookBookIndexRouteImport.update({
+  id: '/book/$book/',
+  path: '/book/$book/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummaryBookChapterRoute = SummaryBookChapterRouteImport.update({
+  id: '/summary/$book/$chapter',
+  path: '/summary/$book/$chapter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChristianMoviesIdEpisodeIdRoute =
   ChristianMoviesIdEpisodeIdRouteImport.update({
     id: '/$episodeId',
     path: '/$episodeId',
     getParentRoute: () => ChristianMoviesIdRouteRoute,
   } as any)
-const SummaryBookChapterRoute = SummaryBookChapterRouteImport.update({
-  id: '/summary/$book/$chapter',
-  path: '/summary/$book/$chapter',
+const BookBookChapterRoute = BookBookChapterRouteImport.update({
+  id: '/book/$book/$chapter',
+  path: '/book/$book/$chapter',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksBackfillSummariesRoute =
-  ApiPublicHooksBackfillSummariesRouteImport.update({
-    id: '/api/public/hooks/backfill-summaries',
-    path: '/api/public/hooks/backfill-summaries',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const VerseMeaningsBookChapterVerseRoute =
   VerseMeaningsBookChapterVerseRouteImport.update({
     id: '/verse-meanings/$book/$chapter/$verse',
     path: '/verse-meanings/$book/$chapter/$verse',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksBackfillSummariesRoute =
+  ApiPublicHooksBackfillSummariesRouteImport.update({
+    id: '/api/public/hooks/backfill-summaries',
+    path: '/api/public/hooks/backfill-summaries',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -291,39 +291,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/books': {
-      id: '/books'
-      path: '/books'
-      fullPath: '/books'
-      preLoaderRoute: typeof BooksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/studio-control-x9k2': {
+      id: '/studio-control-x9k2'
+      path: '/studio-control-x9k2'
+      fullPath: '/studio-control-x9k2'
+      preLoaderRoute: typeof StudioControlX9k2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -333,11 +305,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/studio-control-x9k2': {
-      id: '/studio-control-x9k2'
-      path: '/studio-control-x9k2'
-      fullPath: '/studio-control-x9k2'
-      preLoaderRoute: typeof StudioControlX9k2RouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verse-meanings/': {
+      id: '/verse-meanings/'
+      path: '/verse-meanings'
+      fullPath: '/verse-meanings/'
+      preLoaderRoute: typeof VerseMeaningsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/summary/': {
+      id: '/summary/'
+      path: '/summary'
+      fullPath: '/summary/'
+      preLoaderRoute: typeof SummaryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/christian-movies/': {
+      id: '/christian-movies/'
+      path: '/christian-movies'
+      fullPath: '/christian-movies/'
+      preLoaderRoute: typeof ChristianMoviesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/christian-hymns/': {
@@ -354,46 +375,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChristianHymnsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/christian-movies/': {
-      id: '/christian-movies/'
-      path: '/christian-movies'
-      fullPath: '/christian-movies/'
-      preLoaderRoute: typeof ChristianMoviesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/christian-movies/$id': {
       id: '/christian-movies/$id'
       path: '/christian-movies/$id'
       fullPath: '/christian-movies/$id'
       preLoaderRoute: typeof ChristianMoviesIdRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/summary/': {
-      id: '/summary/'
-      path: '/summary'
-      fullPath: '/summary/'
-      preLoaderRoute: typeof SummaryIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/verse-meanings/': {
-      id: '/verse-meanings/'
-      path: '/verse-meanings'
-      fullPath: '/verse-meanings/'
-      preLoaderRoute: typeof VerseMeaningsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/book/$book/': {
-      id: '/book/$book/'
-      path: '/book/$book'
-      fullPath: '/book/$book/'
-      preLoaderRoute: typeof BookBookIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/book/$book/$chapter': {
-      id: '/book/$book/$chapter'
-      path: '/book/$book/$chapter'
-      fullPath: '/book/$book/$chapter'
-      preLoaderRoute: typeof BookBookChapterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/christian-movies/$id/': {
@@ -403,12 +389,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChristianMoviesIdIndexRouteImport
       parentRoute: typeof ChristianMoviesIdRouteRoute
     }
-    '/christian-movies/$id/$episodeId': {
-      id: '/christian-movies/$id/$episodeId'
-      path: '/$episodeId'
-      fullPath: '/christian-movies/$id/$episodeId'
-      preLoaderRoute: typeof ChristianMoviesIdEpisodeIdRouteImport
-      parentRoute: typeof ChristianMoviesIdRouteRoute
+    '/book/$book/': {
+      id: '/book/$book/'
+      path: '/book/$book'
+      fullPath: '/book/$book/'
+      preLoaderRoute: typeof BookBookIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/summary/$book/$chapter': {
       id: '/summary/$book/$chapter'
@@ -417,11 +403,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SummaryBookChapterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/backfill-summaries': {
-      id: '/api/public/hooks/backfill-summaries'
-      path: '/api/public/hooks/backfill-summaries'
-      fullPath: '/api/public/hooks/backfill-summaries'
-      preLoaderRoute: typeof ApiPublicHooksBackfillSummariesRouteImport
+    '/christian-movies/$id/$episodeId': {
+      id: '/christian-movies/$id/$episodeId'
+      path: '/$episodeId'
+      fullPath: '/christian-movies/$id/$episodeId'
+      preLoaderRoute: typeof ChristianMoviesIdEpisodeIdRouteImport
+      parentRoute: typeof ChristianMoviesIdRouteRoute
+    }
+    '/book/$book/$chapter': {
+      id: '/book/$book/$chapter'
+      path: '/book/$book/$chapter'
+      fullPath: '/book/$book/$chapter'
+      preLoaderRoute: typeof BookBookChapterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verse-meanings/$book/$chapter/$verse': {
@@ -429,6 +422,13 @@ declare module '@tanstack/react-router' {
       path: '/verse-meanings/$book/$chapter/$verse'
       fullPath: '/verse-meanings/$book/$chapter/$verse'
       preLoaderRoute: typeof VerseMeaningsBookChapterVerseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/backfill-summaries': {
+      id: '/api/public/hooks/backfill-summaries'
+      path: '/api/public/hooks/backfill-summaries'
+      fullPath: '/api/public/hooks/backfill-summaries'
+      preLoaderRoute: typeof ApiPublicHooksBackfillSummariesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
