@@ -175,7 +175,6 @@ function VideoManager({ email }: { email: string }) {
   const [title, setTitle] = useState("");
   const [embedHtml, setEmbedHtml] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [provider, setProvider] = useState<"rumble" | "youtube">("rumble");
   const [busy, setBusy] = useState(false);
   const [existing, setExisting] = useState<VideoRow[]>([]);
   const [editingHtml, setEditingHtml] = useState("");
@@ -198,7 +197,6 @@ function VideoManager({ email }: { email: string }) {
         setTitle(data?.title ?? "");
         setEmbedHtml(data?.embed_html ?? "");
         setYoutubeUrl(data?.youtube_url ?? "");
-        setProvider((data?.provider as "rumble" | "youtube") ?? "rumble");
       });
   }, [bookSlug, chapter]);
 
@@ -241,34 +239,31 @@ function VideoManager({ email }: { email: string }) {
     e.preventDefault();
     const trimmed = embedHtml.trim();
     const yt = youtubeUrl.trim();
+    const hasYouTubeId = Boolean(
+      yt.match(/youtu\.be\/([\w-]{6,})/i)?.[1] ??
+      yt.match(/[?&]v=([\w-]{6,})/i)?.[1] ??
+      yt.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/i)?.[1]
+    );
+    const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
+    const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
 
-    if (provider === "youtube") {
-      if (!yt) { toast.error("Paste the YouTube link"); return; }
-      if (!/(youtube\.com|youtu\.be)/i.test(yt)) {
-        toast.error("That doesn't look like a YouTube link.");
-        return;
-      }
-    } else {
-      if (!trimmed) { toast.error("Paste the Rumble embed code"); return; }
+    if (yt && !/(youtube\.com|youtu\.be)/i.test(yt)) {
+      toast.error("That doesn't look like a YouTube link.");
+      return;
+    }
+    if (!hasYouTubeId && !hasIframe && !hasScript) {
+      toast.error("Add a valid YouTube link or a Rumble embed code.");
+      return;
+    }
 
-      // Detect a plain Rumble page URL (the "Direct URL" / monetized share link).
-      // That URL is NOT embeddable — Rumble blocks iframing of its page URLs and
-      // the page slug is not the same as the embed ID.
-      const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
-      if (looksLikePageUrl) {
-        toast.error(
-          "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
-          { duration: 9000 },
-        );
-        return;
-      }
-
-      const hasIframe = /<iframe[\s\S]*<\/iframe>/i.test(trimmed);
-      const hasScript = /<script[\s\S]*<\/script>/i.test(trimmed);
-      if (!hasIframe && !hasScript) {
-        toast.error("That doesn't look like a Rumble embed. Paste the full <iframe> or <script> snippet from Rumble's Share → Embed tab.");
-        return;
-      }
+    // A plain Rumble page URL cannot be embedded; require Share → Embed.
+    const looksLikePageUrl = /^https?:\/\/(www\.)?rumble\.com\/[^\s<>"]+\.html/i.test(trimmed);
+    if (trimmed && looksLikePageUrl && !hasYouTubeId) {
+      toast.error(
+        "That's a Rumble page URL, not an embed. On Rumble click Share → Embed (not Share → URL), then copy the <iframe> or <script> snippet and paste it here.",
+        { duration: 9000 },
+      );
+      return;
     }
     setBusy(true);
     try {
@@ -279,7 +274,7 @@ function VideoManager({ email }: { email: string }) {
           title: title.trim() || null,
           embed_html: trimmed,
           youtube_url: yt || null,
-          provider,
+          provider: hasYouTubeId ? "youtube" : "rumble",
         }, { onConflict: "book_slug,chapter" });
       if (error) throw error;
       toast.success(`Saved ${book.name} ${chapter}`);
@@ -346,28 +341,14 @@ function VideoManager({ email }: { email: string }) {
         <div className="rounded-md border border-border bg-background p-3">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-sm">Player shown on the site</p>
-              <p className="text-xs text-muted-foreground">Switch between the Rumble and YouTube version of this chapter.</p>
-            </div>
-            <div className="inline-flex rounded-md border border-border overflow-hidden">
-              {(["rumble", "youtube"] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setProvider(p)}
-                  className={`px-4 py-2 text-sm capitalize transition ${
-                    provider === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent"
-                  }`}
-                >
-                  {p === "rumble" ? "Rumble" : "YouTube"}
-                </button>
-              ))}
+              <p className="text-sm">Playback priority</p>
+              <p className="text-xs text-muted-foreground">YouTube plays first when a valid link is saved; Rumble is used when YouTube is unavailable.</p>
             </div>
           </div>
         </div>
         <div>
           <label className="block text-sm mb-1.5">
-            Rumble embed code {provider === "rumble" && <span className="text-primary text-xs">(active)</span>}
+            Rumble embed code
           </label>
           <p className="text-xs text-muted-foreground mb-2">
             On Rumble click <span className="text-foreground">Share → Embed</span> (not Share → URL), then paste the full <code>&lt;iframe&gt;</code> or monetized <code>&lt;script&gt;</code> snippet. A plain <code>rumble.com/...html</code> page URL will not play here.
@@ -378,7 +359,7 @@ function VideoManager({ email }: { email: string }) {
         </div>
         <div>
           <label className="block text-sm mb-1.5">
-            YouTube link {provider === "youtube" && <span className="text-primary text-xs">(active)</span>}
+            YouTube link
           </label>
           <p className="text-xs text-muted-foreground mb-2">
             Paste the normal video link, e.g. <code>https://www.youtube.com/watch?v=…</code>, <code>https://youtu.be/…</code> or a YouTube embed <code>&lt;iframe&gt;</code>.

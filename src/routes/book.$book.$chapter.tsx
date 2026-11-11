@@ -10,6 +10,16 @@ import { BibleText } from "@/components/bible-text";
 import { AffiliatePicks } from "@/components/affiliate-picks";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
+function getYouTubeId(src: string | null | undefined) {
+  if (!src) return null;
+  return (
+    src.match(/youtu\.be\/([\w-]{6,})/i)?.[1] ??
+    src.match(/[?&]v=([\w-]{6,})/i)?.[1] ??
+    src.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/i)?.[1] ??
+    null
+  );
+}
+
 export const Route = createFileRoute("/book/$book/$chapter")({
   loader: ({ params }) => {
     const book = getBook(params.book);
@@ -77,17 +87,8 @@ function ChapterPage() {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const youtubeId = (() => {
-    const src = video?.youtube_url ?? "";
-    if (!src) return null;
-    return (
-      src.match(/youtu\.be\/([\w-]{6,})/i)?.[1] ??
-      src.match(/[?&]v=([\w-]{6,})/i)?.[1] ??
-      src.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/i)?.[1] ??
-      null
-    );
-  })();
-  const useYouTube = video?.provider === "youtube" && Boolean(youtubeId);
+  const youtubeId = getYouTubeId(video?.youtube_url);
+  const useYouTube = Boolean(youtubeId);
   const rumbleId =
     video?.embed_html?.match(/"video"\s*:\s*"(v[a-z0-9]+)"/i)?.[1] ??
     video?.embed_html?.match(/id="rumble_(v[a-z0-9]+)"/i)?.[1] ??
