@@ -293,7 +293,7 @@ function VideoManager({ email }: { email: string }) {
       .eq("book_slug", bookSlug).eq("chapter", chapter);
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
-    setEmbedHtml(""); setTitle(""); setEditingHtml(""); setYoutubeUrl(""); setProvider("rumble");
+    setEmbedHtml(""); setTitle(""); setEditingHtml(""); setYoutubeUrl("");
     refresh();
   }
 
