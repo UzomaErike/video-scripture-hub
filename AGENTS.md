@@ -1,0 +1,1 @@
+- Keep playlist discovery and import in authenticated server functions; verify the admin role before fetching provider pages or writing chapter-video records.

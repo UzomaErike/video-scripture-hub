@@ -1,10 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useServerFn } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BIBLE_BOOKS, getBook } from "@/lib/bible-books";
+import { importChapterVideos } from "@/lib/video-import.functions";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RefreshCw } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/studio-control-x9k2")({
@@ -169,6 +173,7 @@ interface VideoRow {
 }
 
 function VideoManager({ email }: { email: string }) {
+  const importPlaylist = useServerFn(importChapterVideos);
   const [bookSlug, setBookSlug] = useState(BIBLE_BOOKS[0].slug);
   const book = useMemo(() => getBook(bookSlug)!, [bookSlug]);
   const [chapter, setChapter] = useState(1);
@@ -180,6 +185,9 @@ function VideoManager({ email }: { email: string }) {
   const [editingHtml, setEditingHtml] = useState("");
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [youtubePlaylistUrl, setYoutubePlaylistUrl] = useState("");
+  const [rumblePlaylistUrl, setRumblePlaylistUrl] = useState("");
+  const [importingProvider, setImportingProvider] = useState<"youtube" | "rumble" | null>(null);
 
   useEffect(() => { setChapter(1); }, [bookSlug]);
 
@@ -204,6 +212,28 @@ function VideoManager({ email }: { email: string }) {
     const { data } = await supabase.from("videos").select("book_slug,chapter,title")
       .eq("book_slug", bookSlug).order("chapter");
     setExisting(data ?? []);
+  }
+
+  async function importVideos(provider: "youtube" | "rumble", event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const url = provider === "youtube" ? youtubePlaylistUrl.trim() : rumblePlaylistUrl.trim();
+    if (!url) {
+      toast.error(`Enter a ${provider === "youtube" ? "YouTube" : "Rumble"} playlist or channel link.`);
+      return;
+    }
+
+    setImportingProvider(provider);
+    try {
+      const result = await importPlaylist({ data: { provider, url } });
+      await refresh();
+      const importedLabel = `${result.imported} chapter video${result.imported === 1 ? "" : "s"} imported`;
+      const skippedLabel = result.skipped ? `; ${result.skipped} without a chapter match skipped` : "";
+      toast.success(`${importedLabel}${skippedLabel}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not import those videos.");
+    } finally {
+      setImportingProvider(null);
+    }
   }
 
   async function uploadCover(file: File) {
@@ -309,6 +339,40 @@ function VideoManager({ email }: { email: string }) {
           <button onClick={() => supabase.auth.signOut()} className="text-sm text-muted-foreground hover:text-foreground underline">Sign out</button>
         </div>
       </div>
+
+      <section className="space-y-5 rounded-lg border border-border bg-card p-6">
+        <div>
+          <h2 className="font-display text-2xl">Import chapter videos</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Public channel or playlist links are supported. Each video title must end with a Bible book and chapter, such as “Psalm 1”.
+          </p>
+        </div>
+        <form onSubmit={(event) => importVideos("youtube", event)} className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div>
+            <label htmlFor="youtube-playlist-link" className="mb-1.5 block text-sm">YouTube playlist or channel</label>
+            <Input id="youtube-playlist-link" type="url" value={youtubePlaylistUrl}
+              onChange={(event) => setYoutubePlaylistUrl(event.target.value)}
+              placeholder="https://youtube.com/@yourchannel/playlists" maxLength={500} />
+          </div>
+          <Button type="submit" disabled={importingProvider !== null || !youtubePlaylistUrl.trim()}>
+            <RefreshCw className={importingProvider === "youtube" ? "animate-spin" : ""} />
+            {importingProvider === "youtube" ? "Loading YouTube…" : "Refresh YouTube"}
+          </Button>
+        </form>
+        <form onSubmit={(event) => importVideos("rumble", event)} className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div>
+            <label htmlFor="rumble-playlist-link" className="mb-1.5 block text-sm">Rumble playlist or channel</label>
+            <Input id="rumble-playlist-link" type="url" value={rumblePlaylistUrl}
+              onChange={(event) => setRumblePlaylistUrl(event.target.value)}
+              placeholder="https://rumble.com/c/yourchannel" maxLength={500} />
+          </div>
+          <Button type="submit" variant="outline" disabled={importingProvider !== null || !rumblePlaylistUrl.trim()}>
+            <RefreshCw className={importingProvider === "rumble" ? "animate-spin" : ""} />
+            {importingProvider === "rumble" ? "Loading Rumble…" : "Refresh Rumble"}
+          </Button>
+        </form>
+        <p className="text-xs text-muted-foreground">YouTube links take playback priority when both providers are saved for a chapter.</p>
+      </section>
 
       <form onSubmit={save} className="space-y-5 rounded-lg border border-border bg-card p-6">
         <div className="grid sm:grid-cols-2 gap-4">
