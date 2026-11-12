@@ -33,6 +33,10 @@ export const Route = createFileRoute("/book/$book/$chapter")({
       ? [
           { title: `${loaderData.book.name} ${loaderData.chapter} — VideoBible` },
           { name: "description", content: `Watch ${loaderData.book.name} chapter ${loaderData.chapter} on VideoBible.` },
+          { property: "og:type", content: "website" },
+          { property: "og:title", content: `${loaderData.book.name} ${loaderData.chapter} — VideoBible` },
+          { property: "og:description", content: `Watch ${loaderData.book.name} chapter ${loaderData.chapter} on VideoBible.` },
+          { name: "twitter:card", content: "summary" },
         ]
       : [],
   }),
@@ -61,7 +65,7 @@ export const Route = createFileRoute("/book/$book/$chapter")({
 function ChapterPage() {
   const { book, chapter } = Route.useLoaderData();
 
-  const { data: video, isLoading } = useQuery({
+  const { data: video, isLoading, error: videoError } = useQuery({
     queryKey: ["video", book.slug, chapter],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -73,6 +77,8 @@ function ChapterPage() {
       if (error) throw error;
       return data;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const prev = chapter > 1 ? chapter - 1 : null;
@@ -168,6 +174,10 @@ function ChapterPage() {
         <div className="video-embed relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-border" style={{ boxShadow: "var(--shadow-glow)" }}>
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">Loading…</div>
+          ) : videoError ? (
+            <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+              <p className="text-muted-foreground text-sm">The chapter video could not be loaded. Please refresh and try again.</p>
+            </div>
           ) : useYouTube ? (
             <iframe
               key={`${book.slug}-${chapter}-${youtubeId}`}
