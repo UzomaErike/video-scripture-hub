@@ -27,6 +27,12 @@ type YoutubeSourceResult = {
   unavailableCount: number;
 };
 
+type YoutubeApiSettings = {
+  key: string;
+  clientVersion: string;
+  context: Record<string, unknown>;
+};
+
 const MAX_CHANNEL_PLAYLISTS = 20;
 const MAX_PAGES_PER_PLAYLIST = 12;
 const MAX_IMPORTED_VIDEOS = 300;
@@ -227,10 +233,10 @@ function youtubeApiSettings(html: string) {
   const clientVersion = html.match(/"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"/)?.[1] ?? "2.20260601.00.00";
   const context = extractObjectAfter(html, /"INNERTUBE_CONTEXT"\s*:\s*/);
   if (!key || !context) return null;
-  return { key, clientVersion, context } satisfies YoutubeSettings;
+  return { key, clientVersion, context } satisfies YoutubeApiSettings;
 }
 
-async function readYoutubePlaylist(playlistId: string, settings: YoutubeSettings): Promise<YoutubeSourceResult> {
+async function readYoutubePlaylist(playlistId: string, settings: YoutubeApiSettings): Promise<YoutubeSourceResult> {
   const response = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${encodeURIComponent(settings.key)}`, {
     method: "POST",
     headers: {
