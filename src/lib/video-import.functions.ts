@@ -16,6 +16,23 @@ type ImportedSourceVideo = {
   rumbleEmbed?: string;
 };
 
+type YoutubeSettings = {
+  key: string;
+  clientVersion: string;
+  context: Record<string, unknown>;
+};
+
+type YoutubeSourceResult = {
+  videos: ImportedSourceVideo[];
+  unavailableCount: number;
+};
+
+type YoutubeApiSettings = {
+  key: string;
+  clientVersion: string;
+  context: Record<string, unknown>;
+};
+
 const MAX_CHANNEL_PLAYLISTS = 20;
 const MAX_PAGES_PER_PLAYLIST = 12;
 const MAX_IMPORTED_VIDEOS = 300;
@@ -91,10 +108,48 @@ function extractAssignedJson(html: string, variableName: string): unknown | null
   return null;
 }
 
-function collectYoutubeData(root: unknown) {
+function extractObjectAfter(html: string, marker: RegExp): Record<string, unknown> | null {
+  const match = marker.exec(html);
+  if (!match) return null;
+  const start = html.indexOf("{", match.index + match[0].length);
+  if (start < 0) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < html.length; i += 1) {
+    const char = html[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === "{") depth += 1;
+    else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        try {
+          const value: unknown = JSON.parse(html.slice(start, i + 1));
+          return value && typeof value === "object" && !Array.isArray(value)
+            ? value as Record<string, unknown>
+            : null;
+        } catch {
+          return null;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+export function collectYoutubeData(root: unknown) {
   const videos: ImportedSourceVideo[] = [];
   const playlistIds: string[] = [];
   const continuationTokens: string[] = [];
+  const channelIds: string[] = [];
+  let unavailableCount = 0;
   const seenObjects: unknown[] = [root];
   let visited = 0;
 
@@ -128,8 +183,39 @@ function collectYoutubeData(root: unknown) {
       if (typeof id === "string" && /^[\w-]{5,}$/.test(id)) playlistIds.push(id);
     }
 
+    const lockup = object.lockupViewModel;
+    if (lockup && typeof lockup === "object") {
+      const view = lockup as Record<string, unknown>;
+      const id = typeof view.contentId === "string" ? view.contentId : "";
+      const contentType = view.contentType;
+      const metadata = view.metadata as Record<string, unknown> | undefined;
+      const lockupMetadata = metadata?.lockupMetadataViewModel as Record<string, unknown> | undefined;
+      const title = lockupMetadata?.title as Record<string, unknown> | undefined;
+      const titleText = typeof title?.content === "string" ? title.content : "";
+      if (id && contentType === "LOCKUP_CONTENT_TYPE_VIDEO" && titleText) {
+        videos.push({ id, title: titleText, youtubeUrl: `https://www.youtube.com/watch?v=${id}` });
+      } else if (id && contentType === "LOCKUP_CONTENT_TYPE_PLAYLIST" && /^[\w-]{5,}$/.test(id)) {
+        playlistIds.push(id);
+      }
+    }
+
+    const browseId = (object.browseEndpoint as { browseId?: unknown } | undefined)?.browseId;
+    if (typeof browseId === "string" && /^UC[\w-]{10,}$/.test(browseId)) channelIds.push(browseId);
+
+    const messageRenderer = object.messageRenderer as Record<string, unknown> | undefined;
+    const messageText = messageRenderer?.text as { simpleText?: unknown; runs?: Array<{ text?: unknown }> } | undefined;
+    const message = typeof messageText?.simpleText === "string"
+      ? messageText.simpleText
+      : Array.isArray(messageText?.runs)
+        ? messageText.runs.map((run) => typeof run.text === "string" ? run.text : "").join("")
+        : "";
+    const hiddenVideos = message.match(/(\d+)\s+unavailable videos? are hidden/i);
+    if (hiddenVideos) unavailableCount = Math.max(unavailableCount, Number(hiddenVideos[1]));
+
     const token = (object.continuationCommand as { token?: unknown } | undefined)?.token;
     if (typeof token === "string" && token) continuationTokens.push(token);
+    const nextToken = (object.nextContinuationData as { continuation?: unknown } | undefined)?.continuation;
+    if (typeof nextToken === "string" && nextToken) continuationTokens.push(nextToken);
     for (const value of Object.values(object)) seenObjects.push(value);
   }
 
@@ -137,28 +223,42 @@ function collectYoutubeData(root: unknown) {
     videos,
     playlistIds: [...new Set(playlistIds)],
     continuationTokens: [...new Set(continuationTokens)],
+    channelIds: [...new Set(channelIds)],
+    unavailableCount,
   };
 }
 
 function youtubeApiSettings(html: string) {
   const key = html.match(/"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"/)?.[1];
   const clientVersion = html.match(/"INNERTUBE_CLIENT_VERSION"\s*:\s*"([^"]+)"/)?.[1] ?? "2.20260601.00.00";
-  return { key, clientVersion };
+  const context = extractObjectAfter(html, /"INNERTUBE_CONTEXT"\s*:\s*/);
+  if (!key || !context) return null;
+  return { key, clientVersion, context } satisfies YoutubeApiSettings;
 }
 
-async function readYoutubePlaylist(playlistId: string): Promise<ImportedSourceVideo[]> {
-  const html = await fetchPage(`https://www.youtube.com/playlist?list=${encodeURIComponent(playlistId)}`, "YouTube playlist");
-  const initialData = extractAssignedJson(html, "ytInitialData");
-  if (!initialData) throw new Error("YouTube did not provide playlist details. Make sure the playlist is public and try again.");
+async function readYoutubePlaylist(playlistId: string, settings: YoutubeApiSettings): Promise<YoutubeSourceResult> {
+  const response = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${encodeURIComponent(settings.key)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Origin": "https://www.youtube.com",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+    },
+    body: JSON.stringify({ context: settings.context, browseId: `VL${playlistId}` }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!response.ok) {
+    console.warn(`[video-import] YouTube playlist browse returned HTTP ${response.status}`);
+    throw new Error("YouTube could not open that playlist. Check that it is public and try again.");
+  }
+  const initialData: unknown = await response.json();
 
-  const settings = youtubeApiSettings(html);
   const results = new Map<string, ImportedSourceVideo>();
   const initial = collectYoutubeData(initialData);
   for (const video of initial.videos) results.set(video.id, video);
 
   let tokens = initial.continuationTokens;
   for (let page = 0; page < MAX_PAGES_PER_PLAYLIST && tokens.length && results.size < MAX_IMPORTED_VIDEOS; page += 1) {
-    if (!settings.key) break;
     const token = tokens.shift();
     if (!token) break;
     const response = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${encodeURIComponent(settings.key)}`, {
@@ -169,7 +269,7 @@ async function readYoutubePlaylist(playlistId: string): Promise<ImportedSourceVi
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
       },
       body: JSON.stringify({
-        context: { client: { clientName: "WEB", clientVersion: settings.clientVersion, hl: "en", gl: "US" } },
+        context: settings.context,
         continuation: token,
       }),
       signal: AbortSignal.timeout(20_000),
@@ -183,7 +283,24 @@ async function readYoutubePlaylist(playlistId: string): Promise<ImportedSourceVi
     for (const video of next.videos) results.set(video.id, video);
     tokens.push(...next.continuationTokens.filter((nextToken) => !tokens.includes(nextToken)));
   }
-  return [...results.values()].slice(0, MAX_IMPORTED_VIDEOS);
+  return {
+    videos: [...results.values()].slice(0, MAX_IMPORTED_VIDEOS),
+    unavailableCount: initial.unavailableCount,
+  };
+}
+
+function parseYoutubeFeed(xml: string): ImportedSourceVideo[] {
+  const videos: ImportedSourceVideo[] = [];
+  const entryPattern = /<entry\b[^>]*>([\s\S]*?)<\/entry>/gi;
+  let entry: RegExpExecArray | null;
+  while ((entry = entryPattern.exec(xml)) !== null && videos.length < MAX_IMPORTED_VIDEOS) {
+    const id = entry[1].match(/<yt:videoId>([^<]+)<\/yt:videoId>/i)?.[1];
+    const title = entry[1].match(/<title>([\s\S]*?)<\/title>/i)?.[1];
+    if (!id || !title) continue;
+    const decodedTitle = decodeEntities(title).trim();
+    videos.push({ id, title: decodedTitle, youtubeUrl: `https://www.youtube.com/watch?v=${id}` });
+  }
+  return videos;
 }
 
 async function readYoutubeChannel(url: URL): Promise<ImportedSourceVideo[]> {
@@ -191,27 +308,60 @@ async function readYoutubeChannel(url: URL): Promise<ImportedSourceVideo[]> {
   const playlistPageUrl = new URL(`${basePath}/playlists`, "https://www.youtube.com");
   const playlistsHtml = await fetchPage(playlistPageUrl.toString(), "YouTube channel");
   const playlistData = extractAssignedJson(playlistsHtml, "ytInitialData");
-  const playlistIds = playlistData ? collectYoutubeData(playlistData).playlistIds : [];
+  if (!playlistData) throw new Error("YouTube did not provide channel details. Make sure the channel is public and try again.");
+  const initial = collectYoutubeData(playlistData);
+  const settings = youtubeApiSettings(playlistsHtml);
+  const playlistIds = initial.playlistIds;
 
-  if (playlistIds.length) {
-    const allVideos = new Map<string, ImportedSourceVideo>();
-    for (const playlistId of playlistIds.slice(0, MAX_CHANNEL_PLAYLISTS)) {
-      const videos = await readYoutubePlaylist(playlistId);
-      for (const video of videos) allVideos.set(video.id, video);
-      if (allVideos.size >= MAX_IMPORTED_VIDEOS) break;
+  const allVideos = new Map<string, ImportedSourceVideo>();
+  let unavailableCount = 0;
+  if (settings && playlistIds.length) {
+    const playlistResults = await Promise.all(playlistIds.slice(0, MAX_CHANNEL_PLAYLISTS).map(async (playlistId) => {
+      try {
+        return await readYoutubePlaylist(playlistId, settings);
+      } catch (error) {
+        console.warn(`[video-import] Could not read a channel playlist: ${error instanceof Error ? error.message : "unknown error"}`);
+        return { videos: [], unavailableCount: 0 };
+      }
+    }));
+    for (const result of playlistResults) {
+      unavailableCount += result.unavailableCount;
+      for (const video of result.videos) allVideos.set(video.id, video);
     }
-    return [...allVideos.values()].slice(0, MAX_IMPORTED_VIDEOS);
+    if (!allVideos.size && unavailableCount) {
+      throw new Error(`YouTube reports ${unavailableCount} unavailable videos in this channel’s playlists. Set those videos to Public, then refresh again.`);
+    }
   }
 
-  const videosPageUrl = new URL(`${basePath}/videos`, "https://www.youtube.com");
-  const videosHtml = await fetchPage(videosPageUrl.toString(), "YouTube channel videos");
-  const videosData = extractAssignedJson(videosHtml, "ytInitialData");
-  return videosData ? collectYoutubeData(videosData).videos.slice(0, MAX_IMPORTED_VIDEOS) : [];
+  if (allVideos.size) return [...allVideos.values()].slice(0, MAX_IMPORTED_VIDEOS);
+
+  const channelId = initial.channelIds[0]
+    ?? playlistsHtml.match(/"externalChannelId"\s*:\s*"(UC[\w-]{10,})"/)?.[1]
+    ?? playlistsHtml.match(/"browseId"\s*:\s*"(UC[\w-]{10,})"/)?.[1];
+  if (channelId) {
+    const xml = await fetchPage(`https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`, "YouTube channel feed");
+    const feedVideos = parseYoutubeFeed(xml);
+    if (feedVideos.length) return feedVideos;
+  }
+
+  if (unavailableCount) {
+    throw new Error(`YouTube reports ${unavailableCount} unavailable videos in this channel’s playlists. Set those videos to Public, then refresh again.`);
+  }
+  return [];
 }
 
 async function readYoutubeSource(url: URL): Promise<ImportedSourceVideo[]> {
   const playlistId = url.searchParams.get("list");
-  if (playlistId) return readYoutubePlaylist(playlistId);
+  if (playlistId) {
+    const playlistHtml = await fetchPage(`https://www.youtube.com/playlist?list=${encodeURIComponent(playlistId)}`, "YouTube playlist");
+    const settings = youtubeApiSettings(playlistHtml);
+    if (!settings) throw new Error("YouTube did not provide playlist details. Make sure the playlist is public and try again.");
+    const result = await readYoutubePlaylist(playlistId, settings);
+    if (!result.videos.length && result.unavailableCount) {
+      throw new Error(`YouTube reports ${result.unavailableCount} unavailable videos in this playlist. Set those videos to Public, then refresh again.`);
+    }
+    return result.videos;
+  }
   if (url.hostname.toLowerCase() === "youtu.be") {
     throw new Error("Paste a YouTube channel or playlist link, not a single-video link.");
   }
@@ -274,7 +424,7 @@ async function readRumbleSource(url: URL): Promise<ImportedSourceVideo[]> {
   return [...videos.values()];
 }
 
-function matchChapter(title: string) {
+export function matchChapter(title: string) {
   const suffix = title.trim().replace(/[\s.,;:!?"'”’)\]}]+$/u, "").trim();
   const books = [...BIBLE_BOOKS].sort((a, b) => b.name.length - a.name.length);
   for (const book of books) {
@@ -309,7 +459,7 @@ export const importChapterVideos = createServerFn({ method: "POST" })
       ? await readYoutubeSource(url)
       : await readRumbleSource(url);
     if (!sourceVideos.length) {
-      throw new Error("No videos were found. Check that this playlist or channel is public.");
+      throw new Error("No publicly available videos were found. Make sure the playlist or channel has public videos, then refresh again.");
     }
 
     const matched = sourceVideos.flatMap((video) => {
