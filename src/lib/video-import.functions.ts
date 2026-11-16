@@ -144,7 +144,7 @@ function extractObjectAfter(html: string, marker: RegExp): Record<string, unknow
   return null;
 }
 
-function collectYoutubeData(root: unknown) {
+export function collectYoutubeData(root: unknown) {
   const videos: ImportedSourceVideo[] = [];
   const playlistIds: string[] = [];
   const continuationTokens: string[] = [];
@@ -297,7 +297,8 @@ function parseYoutubeFeed(xml: string): ImportedSourceVideo[] {
     const id = entry[1].match(/<yt:videoId>([^<]+)<\/yt:videoId>/i)?.[1];
     const title = entry[1].match(/<title>([\s\S]*?)<\/title>/i)?.[1];
     if (!id || !title) continue;
-    videos.push({ id: decodeEntities(title).trim(), title: decodeEntities(title).trim(), youtubeUrl: `https://www.youtube.com/watch?v=${id}` });
+    const decodedTitle = decodeEntities(title).trim();
+    videos.push({ id, title: decodedTitle, youtubeUrl: `https://www.youtube.com/watch?v=${id}` });
   }
   return videos;
 }
@@ -326,6 +327,9 @@ async function readYoutubeChannel(url: URL): Promise<ImportedSourceVideo[]> {
     for (const result of playlistResults) {
       unavailableCount += result.unavailableCount;
       for (const video of result.videos) allVideos.set(video.id, video);
+    }
+    if (!allVideos.size && unavailableCount) {
+      throw new Error(`YouTube reports ${unavailableCount} unavailable videos in this channel’s playlists. Set those videos to Public, then refresh again.`);
     }
   }
 
