@@ -16,12 +16,6 @@ type ImportedSourceVideo = {
   rumbleEmbed?: string;
 };
 
-type YoutubeSettings = {
-  key: string;
-  clientVersion: string;
-  context: Record<string, unknown>;
-};
-
 type YoutubeSourceResult = {
   videos: ImportedSourceVideo[];
   unavailableCount: number;
@@ -203,7 +197,8 @@ export function collectYoutubeData(root: unknown) {
     if (typeof browseId === "string" && /^UC[\w-]{10,}$/.test(browseId)) channelIds.push(browseId);
 
     const messageRenderer = object.messageRenderer as Record<string, unknown> | undefined;
-    const messageText = messageRenderer?.text as { simpleText?: unknown; runs?: Array<{ text?: unknown }> } | undefined;
+    const alertRenderer = object.alertWithButtonRenderer as Record<string, unknown> | undefined;
+    const messageText = (messageRenderer?.text ?? alertRenderer?.text) as { simpleText?: unknown; runs?: Array<{ text?: unknown }> } | undefined;
     const message = typeof messageText?.simpleText === "string"
       ? messageText.simpleText
       : Array.isArray(messageText?.runs)
@@ -237,27 +232,38 @@ function youtubeApiSettings(html: string) {
 }
 
 async function readYoutubePlaylist(playlistId: string, settings: YoutubeApiSettings): Promise<YoutubeSourceResult> {
-  const response = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${encodeURIComponent(settings.key)}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Origin": "https://www.youtube.com",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
-    },
-    body: JSON.stringify({ context: settings.context, browseId: `VL${playlistId}` }),
-    signal: AbortSignal.timeout(20_000),
-  });
-  if (!response.ok) {
-    console.warn(`[video-import] YouTube playlist browse returned HTTP ${response.status}`);
-    throw new Error("YouTube could not open that playlist. Check that it is public and try again.");
-  }
-  const initialData: unknown = await response.json();
-
+  const playlistHtml = await fetchPage(`https://www.youtube.com/playlist?list=${encodeURIComponent(playlistId)}`, "YouTube playlist");
+  const pageData = extractAssignedJson(playlistHtml, "ytInitialData");
+  const pageResult = pageData ? collectYoutubeData(pageData) : null;
   const results = new Map<string, ImportedSourceVideo>();
-  const initial = collectYoutubeData(initialData);
-  for (const video of initial.videos) results.set(video.id, video);
+  for (const video of pageResult?.videos ?? []) results.set(video.id, video);
 
-  let tokens = initial.continuationTokens;
+  let unavailableCount = pageResult?.unavailableCount ?? 0;
+  let tokens: string[] = [];
+  try {
+    const response = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${encodeURIComponent(settings.key)}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "https://www.youtube.com",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+      },
+      body: JSON.stringify({ context: settings.context, browseId: `VL${playlistId}` }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!response.ok) {
+      console.warn(`[video-import] YouTube playlist browse returned HTTP ${response.status}`);
+    } else {
+      const initialData: unknown = await response.json();
+      const initial = collectYoutubeData(initialData);
+      for (const video of initial.videos) results.set(video.id, video);
+      unavailableCount = Math.max(unavailableCount, initial.unavailableCount);
+      tokens = initial.continuationTokens;
+    }
+  } catch (error) {
+    console.warn(`[video-import] YouTube playlist browse failed: ${error instanceof Error ? error.message : "unknown error"}`);
+  }
+
   for (let page = 0; page < MAX_PAGES_PER_PLAYLIST && tokens.length && results.size < MAX_IMPORTED_VIDEOS; page += 1) {
     const token = tokens.shift();
     if (!token) break;
@@ -283,10 +289,7 @@ async function readYoutubePlaylist(playlistId: string, settings: YoutubeApiSetti
     for (const video of next.videos) results.set(video.id, video);
     tokens.push(...next.continuationTokens.filter((nextToken) => !tokens.includes(nextToken)));
   }
-  return {
-    videos: [...results.values()].slice(0, MAX_IMPORTED_VIDEOS),
-    unavailableCount: initial.unavailableCount,
-  };
+  return { videos: [...results.values()].slice(0, MAX_IMPORTED_VIDEOS), unavailableCount };
 }
 
 function parseYoutubeFeed(xml: string): ImportedSourceVideo[] {
@@ -315,10 +318,14 @@ async function readYoutubeChannel(url: URL): Promise<ImportedSourceVideo[]> {
 
   const allVideos = new Map<string, ImportedSourceVideo>();
   let unavailableCount = 0;
-  if (settings && playlistIds.length) {
+  if (playlistIds.length) {
     const playlistResults = await Promise.all(playlistIds.slice(0, MAX_CHANNEL_PLAYLISTS).map(async (playlistId) => {
       try {
-        return await readYoutubePlaylist(playlistId, settings);
+        return await readYoutubePlaylist(playlistId, settings ?? youtubeApiSettings(playlistsHtml) ?? {
+          key: "",
+          clientVersion: "",
+          context: {},
+        });
       } catch (error) {
         console.warn(`[video-import] Could not read a channel playlist: ${error instanceof Error ? error.message : "unknown error"}`);
         return { videos: [], unavailableCount: 0 };
@@ -335,15 +342,6 @@ async function readYoutubeChannel(url: URL): Promise<ImportedSourceVideo[]> {
 
   if (allVideos.size) return [...allVideos.values()].slice(0, MAX_IMPORTED_VIDEOS);
 
-  const channelId = initial.channelIds[0]
-    ?? playlistsHtml.match(/"externalChannelId"\s*:\s*"(UC[\w-]{10,})"/)?.[1]
-    ?? playlistsHtml.match(/"browseId"\s*:\s*"(UC[\w-]{10,})"/)?.[1];
-  if (channelId) {
-    const xml = await fetchPage(`https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`, "YouTube channel feed");
-    const feedVideos = parseYoutubeFeed(xml);
-    if (feedVideos.length) return feedVideos;
-  }
-
   if (unavailableCount) {
     throw new Error(`YouTube reports ${unavailableCount} unavailable videos in this channel’s playlists. Set those videos to Public, then refresh again.`);
   }
@@ -354,8 +352,7 @@ async function readYoutubeSource(url: URL): Promise<ImportedSourceVideo[]> {
   const playlistId = url.searchParams.get("list");
   if (playlistId) {
     const playlistHtml = await fetchPage(`https://www.youtube.com/playlist?list=${encodeURIComponent(playlistId)}`, "YouTube playlist");
-    const settings = youtubeApiSettings(playlistHtml);
-    if (!settings) throw new Error("YouTube did not provide playlist details. Make sure the playlist is public and try again.");
+    const settings = youtubeApiSettings(playlistHtml) ?? { key: "", clientVersion: "", context: {} };
     const result = await readYoutubePlaylist(playlistId, settings);
     if (!result.videos.length && result.unavailableCount) {
       throw new Error(`YouTube reports ${result.unavailableCount} unavailable videos in this playlist. Set those videos to Public, then refresh again.`);

@@ -16,10 +16,12 @@ describe("chapter video playlist parsing", () => {
 
   test("reports when YouTube hides unavailable playlist videos", () => {
     const page = {
-      messageRenderer: {
-        text: { simpleText: "4 unavailable videos are hidden" },
+      alerts: [{
+        alertWithButtonRenderer: {
+          text: { simpleText: "4 unavailable videos are hidden" },
+        },
       },
-    };
+      ],
 
     expect(collectYoutubeData(page).unavailableCount).toBe(4);
   });
